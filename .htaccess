@@ -1,31 +1,15 @@
-### Rewrite Rules Added by CyberPanel Rewrite Rule Generator
-
-RewriteEngine On
-RewriteCond %{HTTPS}  !=on
-RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
-
-### End CyberPanel Generated Rules.
-
+# Matikan paksaan HTTPS di .htaccess (biarkan Traefik/Coolify yang urus)
 RewriteEngine On
 
-# Pengecualian khusus untuk skrip impor/callback.php
+# Pengecualian script
 RewriteRule ^callback\.php$ - [L]
-
-# Pengecualian KHUSUS untuk skrip AJAX
 RewriteRule ^ajax/loadgame/fetch_games\.php$ - [L]
 
-# Redirect to non-.php URL if .php URL is accessed directly
+# Redirect ke non-.php URL
 RewriteCond %{THE_REQUEST} \.php [NC]
 RewriteRule ^(.+)\.php$ /$1 [R=301,L]
 
-# Serve .php file if requested non-.php URL exists as file
+# Tampilkan file .php tanpa ekstensi
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^/]+)/?$ $1.php [L]
-
-# php -- BEGIN cPanel-generated handler, do not edit
-# Set the “ea-php81” package as the default “PHP programming language.
-<IfModule mime_module>
-  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
-</IfModule>
-# php -- END cPanel-generated handler, do not edit
