@@ -5,16 +5,16 @@
 	ini_set('display_errors', 0);
 	
 	date_default_timezone_set("Asia/Jakarta");
-	$host = "localhost";
+	$host = "167.71.163.131";
 	$username = "u8ssds8v_nuke";
-	$password = 'u8ssds8v_nuke';
-	$database = "u8ssds8v_nuke";
+	$password = 'UMGunsTrHAsjjOxaFiO8f0xoRzyA2qFCx7XxJlEs6kIsISSGNPINa6r8B2vSfVHY';
+	$database = "default";
 	$koneksi = mysqli_connect($host, $username, $password, $database);
 	if ($koneksi) {
 		include_once 'fungsi_umum.php';
-		$alamat_website = 'https://nuke.bkent.store/';
-		$alamat_admin = 'https://nuke.bkent.store/admin/';
-		$alamat_staff = 'https://nuke.bkent.store/staff/';
+		$alamat_website = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/';
+		$alamat_admin = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/admin/';
+		$alamat_staff = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/staff/';
 		
 		// Judul Web
 		$judul_web = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan = 'judul_web'");
