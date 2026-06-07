@@ -6,7 +6,7 @@
 	
 	date_default_timezone_set("Asia/Jakarta");
 	$host = "167.71.163.131";
-	$username = "u8ssds8v_nuke";
+	$username = "mysql";
 	$password = 'UMGunsTrHAsjjOxaFiO8f0xoRzyA2qFCx7XxJlEs6kIsISSGNPINa6r8B2vSfVHY';
 	$database = "default";
 	$koneksi = mysqli_connect($host, $username, $password, $database);
