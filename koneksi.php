@@ -12,9 +12,9 @@
 	$koneksi = mysqli_connect($host, $username, $password, $database);
 	if ($koneksi) {
 		include_once 'fungsi_umum.php';
-		$alamat_website = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/';
-		$alamat_admin = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/admin/';
-		$alamat_staff = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/staff/';
+		$alamat_website = 'https://exampleproject.my.id/';
+		$alamat_admin = 'https://exampleproject.my.id/admin/';
+		$alamat_staff = 'https://exampleproject.my.id/staff/';
 		
 		// Judul Web
 		$judul_web = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan = 'judul_web'");
