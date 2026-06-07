@@ -1,0 +1,2 @@
+[2026-02-01 07:19:38] [API Error] Player: 46696, GameCode: b81b86263b26a2dfe287ca8c22750329. Pesan API: Respon API Gagal: Tidak ada URL peluncuran game.. Respon Lengkap: {"success":false,"message":"Gagal mengautentikasi agen sebelum memanggil API.","code":400,"data":{"error":"Invalid credentials"}}
+[2026-02-01 07:19:38] [Fatal Error] Player: 46696, GameCode: b81b86263b26a2dfe287ca8c22750329. Pesan Exception: Respon API Gagal: Tidak ada URL peluncuran game.. File: /home/u8ssds8v/public_html/nuke/playgame.php, Line: 65

@@ -1,0 +1,794 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+include_once 'koneksi.php';
+$nama_pengguna = isset($_SESSION['nama_pengguna_anggota']) ? $_SESSION['nama_pengguna_anggota'] : '';
+
+// Ambil inisial huruf pertama dari nama pengguna
+$inisial = strtoupper(substr($nama_pengguna, 0, 1));
+// Cek jika pengguna sudah login
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+	// Ambil ID anggota dari session
+	$id_anggota = $_SESSION['id_anggota'];
+
+	// Query untuk mendapatkan saldo terbaru dari database
+	$query = "SELECT saldo_anggota FROM anggota WHERE id_anggota = ?";
+	$stmt = mysqli_prepare($koneksi, $query);
+	mysqli_stmt_bind_param($stmt, 'i', $id_anggota);
+	mysqli_stmt_execute($stmt);
+	$result = mysqli_stmt_get_result($stmt);
+
+	if ($result && mysqli_num_rows($result) == 1) {
+		$row = mysqli_fetch_assoc($result);
+		// Update saldo di session dengan nilai terbaru dari database
+		$_SESSION['saldo_anggota'] = $row['saldo_anggota'];
+	}
+}
+// Ambil nilai warna dari database
+$theme_color_query = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan IN ('bg_1_web', 'bg_2_web', 'bg_3_web')");
+
+// Ambil data warna
+$colors = [];
+while ($row = mysqli_fetch_array($theme_color_query)) {
+	$colors[$row['nama_pengaturan']] = $row['isi_1_pengaturan'];
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en" class="notranslate __className_7df6af" translate="no" data-theme="dark" style="--primary: <?php echo htmlspecialchars($colors['bg_1_web']); ?>;">
+
+<head>
+	<meta charSet="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link rel="stylesheet" href="_next/static/css/0a4ae62ed810513b.css" data-precedence="next" />
+	<link rel="stylesheet" href="_next/static/css/54fc46000f7e20bc.css" data-precedence="next" />
+	<link rel="preload" href="_next/static/chunks/webpack-e30d72a36c0ae6d3.js" as="script" fetchPriority="low" />
+	<!--    <script src="_next/static/chunks/bf6a786c-74bd201ed25010df.js" async=""></script> -->
+	<script src="_next/static/chunks/1179-e1ca092b8d3f3375.js" async=""></script>
+	<script src="_next/static/chunks/main-app-12309b691508e534.js" async=""></script>
+	<title><?php echo $isi_1_judul_web; ?> | Situs Permainan Online, betting Bola &amp;Live Casino, 24/7, Terbesar di Indonesia</title>
+	<meta name="description" content="<?php echo $isi_1_deskripsi_web; ?>">
+	<meta name="application-name" content="<?php echo $isi_1_judul_web; ?>" />
+	<link rel="author" href="" />
+	<meta name="author" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta name="generator" content="<?php echo $alamat_website; ?>" />
+	<meta name="keywords" content="<?php echo $isi_1_judul_web; ?> 88,<?php echo $isi_1_judul_web; ?>" />
+	<meta name="referrer" content="origin-when-cross-origin" />
+	<meta name="color-scheme" content="dark" />
+	<meta name="creator" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta name="publisher" content="<?php echo $isi_1_judul_web; ?> - Best E-Gaming Provider" />
+	<link rel="bookmarks" href="/" />
+	<meta name="category" content="games" />
+	<meta name="robots" content="index,follow" />
+	<meta name="author" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta name="geo.region" content="ID" />
+	<meta name="geo.placename" content="Indonesia" />
+	<meta name="publisher" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta name="copyright" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta name="categories" content="website" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-title" content="<?php echo $isi_1_judul_web; ?> | Cepat Dan Pasti" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta property="og:title" content="<?php echo $isi_1_judul_web; ?> | Cepat Dan Pasti" />
+	<meta property="og:description" content="<?php echo $isi_1_judul_web; ?>: Mengedepankan keinginan pemain untuk dapat kesuksesan yang nyata dan cepat." />
+	<meta property="og:site_name" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta property="og:image:width" content="800" />
+	<meta property="og:image:height" content="600" />
+	<meta property="og:image:alt" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta property="og:image:width" content="1800" />
+	<meta property="og:image:height" content="1600" />
+	<meta property="og:image:alt" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta property="og:type" content="website" />
+	<link rel="shortcut icon" href="<?php echo 'assets/img/' . $isi_1_favicon_web; ?>" />
+	<link rel="icon" href="<?php echo 'assets/img/' . $isi_1_favicon_web; ?>" />
+	<link rel="apple-touch-icon" href="<?php echo 'assets/img/' . $isi_1_favicon_web; ?>" />
+	<link rel="apple-touch-icon" href="<?php echo 'assets/img/' . $isi_1_favicon_web; ?>" sizes="180x180" type="image/png" />
+	<link rel="apple-touch-icon-precomposed" href="<?php echo 'assets/img/' . $isi_1_favicon_web; ?>" />
+	<meta name="next-size-adjust" />
+	<script src="_next/static/chunks/polyfills-c67a75d1b6f99dc8.js" noModule=""></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	
+	<style>
+		.header-transition {
+			transition: top 0.5s ease-out;
+		}
+
+		.header-fixed {
+			position: fixed;
+			left: 0;
+			right: 0;
+			background: var(--background-default);
+			z-index: 97;
+			width: 100%;
+		}
+
+		.header-hidden {
+			top: -125px;
+			/* Atur sesuai kebutuhan untuk menyembunyikan header */
+
+		}
+		
+	</style>
+	<style>
+		.sidebar {
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: 350px;
+			height: 100%;
+			background-color: #1b1b1b;
+			color: #fff;
+			transform: translateX(100%);
+			transition: transform 0.3s ease-in-out;
+			z-index: 1001;
+		}
+
+		.sidebar.active {
+			transform: translateX(0);
+		}
+
+		.toggle-btn {
+			position: flex;
+			top: 20px;
+			right: 20px;
+			z-index: 1001;
+		}
+	</style>
+</head>
+
+<?php echo $isi_1_script_livechat_web; ?>
+<body>
+	
+	<div id="notification" class="fixed z-[9999] px-4 pt-3 pb-5 top-3 sm:top-4 sm:right-6 left-3 right-3 sm:ml-auto sm:w-2/3 md:w-1/2 lg:w-[410px] rounded-xl bg-gradient-to-r from-[#710000] to-background-secondary to-50%" style="display:none;">
+		<button class="h-6 w-6 ml-auto absolute right-3 top-2 z-50" onclick="document.getElementById('notification').style.display='none';">
+			<svg width="100%" height="100%" viewBox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg">
+				<path d="M18 6L6 18M6 6l12 12" stroke="var(--base)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+			</svg>
+		</button>
+		<div class="flex items-center">
+			<figure class="flex-none h-12 w-12">
+				<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 60 60" fill="none">
+					<path stroke="#FF3B30" stroke-linecap="round" stroke-width="5" d="M30 52.5a22.5 22.5 0 1 0-15.91-6.59M22.5 22.5l15 15M37.5 22.5l-15 15"></path>
+				</svg>
+			</figure>
+			<article class="pl-3">
+				<p class="font-medium">Cancelled</p>
+				<p class="text-xs mt-1" id="notification-text">
+					<!-- This will be filled by JavaScript -->
+				</p>
+			</article>
+		</div>
+	</div>
+	<script>
+		function registerPopup(options) {
+			const notification = document.getElementById('notification');
+			const notificationText = document.getElementById('notification-text');
+
+			if (options && options.content) {
+				notificationText.textContent = options.content;
+				notification.style.display = 'block';
+			}
+		}
+	</script>
+	<script>
+		function updateSaldo() {
+			fetch('update_saldo.php')
+				.then(response => response.text())
+				.catch(error => {
+					console.error('Terjadi kesalahan:', error);
+				});
+		}
+
+		window.addEventListener('load', updateSaldo);
+	</script>
+	<!-- Konten lainnya -->
+	
+	<header id="header" class="fixed z-[97] left-0 right-0 bg-background-default transition-all duration-500 ease-out top-0">
+	    <!--<div id="hideableElement" class="lg:hidden flex items-center justify-between overflow-hidden h-16 bg-white px-2 transition-all duration-300 ease-out">
+	<div class="flex items-center gap-x-2 py-2 w-[calc(100%-80px)]">
+		<button id="hideButton">
+			<svg width="24" height="24" viewBox="0 0 24 24" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+				<path d="M18 6 6 18M6 6l12 12" stroke="var(--separator)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+			</svg>
+		</button>
+		<figure class="w-12 h-12 flex justify-center items-center rounded-md border border-separator">
+			<img alt="APK Logo" loading="lazy" width="0" height="0" decoding="async" data-nimg="1" class="w-full h-auto rounded-md" style="color: transparent;" src="https://dataset.catgarong.com/assets/images/apps/v3/companies/jowoslot/icons/mipmap-mdpi/ic_launcher_foreground.png">
+		</figure>
+		<div class="w-[calc(100%-32px-48px)]">
+			<p class="text-[10px] font-medium text-black">Download apps untuk pengalaman bermain yang lebih memuaskan!</p>
+			<div class="flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="#FF9900" xmlns="http://www.w3.org/2000/svg" size="18"><path d="M10.307 7.22c.642-1.6.963-2.401 1.485-2.512a1 1 0 0 1 .416 0c.522.11.843.911 1.485 2.512.365.91.547 1.365.889 1.675.096.087.2.164.31.23.395.239.888.283 1.874.371 1.669.15 2.503.224 2.758.7.053.099.089.205.106.316.085.533-.529 1.09-1.755 2.207l-.341.31c-.574.522-.86.783-1.026 1.108-.1.195-.167.406-.198.623-.052.361.032.74.2 1.497l.06.27c.301 1.358.452 2.037.264 2.37a1 1 0 0 1-.824.508c-.382.019-.921-.42-2-1.299-.71-.579-1.065-.868-1.459-.981a2 2 0 0 0-1.102 0c-.394.113-.75.402-1.46.981-1.078.878-1.617 1.318-2 1.3a1 1 0 0 1-.823-.509c-.188-.333-.037-1.012.264-2.37l.06-.27c.168-.757.252-1.136.2-1.497a2 2 0 0 0-.198-.623c-.166-.325-.452-.586-1.026-1.108l-.34-.31c-1.227-1.116-1.84-1.674-1.756-2.207a1 1 0 0 1 .106-.316c.255-.476 1.09-.55 2.758-.7.986-.088 1.479-.132 1.873-.37a2 2 0 0 0 .311-.231c.342-.31.524-.765.89-1.675Z" fill="#FF9900" stroke="#FF9900" stroke-width="2"></path></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="#FF9900" xmlns="http://www.w3.org/2000/svg" size="18"><path d="M10.307 7.22c.642-1.6.963-2.401 1.485-2.512a1 1 0 0 1 .416 0c.522.11.843.911 1.485 2.512.365.91.547 1.365.889 1.675.096.087.2.164.31.23.395.239.888.283 1.874.371 1.669.15 2.503.224 2.758.7.053.099.089.205.106.316.085.533-.529 1.09-1.755 2.207l-.341.31c-.574.522-.86.783-1.026 1.108-.1.195-.167.406-.198.623-.052.361.032.74.2 1.497l.06.27c.301 1.358.452 2.037.264 2.37a1 1 0 0 1-.824.508c-.382.019-.921-.42-2-1.299-.71-.579-1.065-.868-1.459-.981a2 2 0 0 0-1.102 0c-.394.113-.75.402-1.46.981-1.078.878-1.617 1.318-2 1.3a1 1 0 0 1-.823-.509c-.188-.333-.037-1.012.264-2.37l.06-.27c.168-.757.252-1.136.2-1.497a2 2 0 0 0-.198-.623c-.166-.325-.452-.586-1.026-1.108l-.34-.31c-1.227-1.116-1.84-1.674-1.756-2.207a1 1 0 0 1 .106-.316c.255-.476 1.09-.55 2.758-.7.986-.088 1.479-.132 1.873-.37a2 2 0 0 0 .311-.231c.342-.31.524-.765.89-1.675Z" fill="#FF9900" stroke="#FF9900" stroke-width="2"></path></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="#FF9900" xmlns="http://www.w3.org/2000/svg" size="18"><path d="M10.307 7.22c.642-1.6.963-2.401 1.485-2.512a1 1 0 0 1 .416 0c.522.11.843.911 1.485 2.512.365.91.547 1.365.889 1.675.096.087.2.164.31.23.395.239.888.283 1.874.371 1.669.15 2.503.224 2.758.7.053.099.089.205.106.316.085.533-.529 1.09-1.755 2.207l-.341.31c-.574.522-.86.783-1.026 1.108-.1.195-.167.406-.198.623-.052.361.032.74.2 1.497l.06.27c.301 1.358.452 2.037.264 2.37a1 1 0 0 1-.824.508c-.382.019-.921-.42-2-1.299-.71-.579-1.065-.868-1.459-.981a2 2 0 0 0-1.102 0c-.394.113-.75.402-1.46.981-1.078.878-1.617 1.318-2 1.3a1 1 0 0 1-.823-.509c-.188-.333-.037-1.012.264-2.37l.06-.27c.168-.757.252-1.136.2-1.497a2 2 0 0 0-.198-.623c-.166-.325-.452-.586-1.026-1.108l-.34-.31c-1.227-1.116-1.84-1.674-1.756-2.207a1 1 0 0 1 .106-.316c.255-.476 1.09-.55 2.758-.7.986-.088 1.479-.132 1.873-.37a2 2 0 0 0 .311-.231c.342-.31.524-.765.89-1.675Z" fill="#FF9900" stroke="#FF9900" stroke-width="2"></path></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="#FF9900" xmlns="http://www.w3.org/2000/svg" size="18"><path d="M10.307 7.22c.642-1.6.963-2.401 1.485-2.512a1 1 0 0 1 .416 0c.522.11.843.911 1.485 2.512.365.91.547 1.365.889 1.675.096.087.2.164.31.23.395.239.888.283 1.874.371 1.669.15 2.503.224 2.758.7.053.099.089.205.106.316.085.533-.529 1.09-1.755 2.207l-.341.31c-.574.522-.86.783-1.026 1.108-.1.195-.167.406-.198.623-.052.361.032.74.2 1.497l.06.27c.301 1.358.452 2.037.264 2.37a1 1 0 0 1-.824.508c-.382.019-.921-.42-2-1.299-.71-.579-1.065-.868-1.459-.981a2 2 0 0 0-1.102 0c-.394.113-.75.402-1.46.981-1.078.878-1.617 1.318-2 1.3a1 1 0 0 1-.823-.509c-.188-.333-.037-1.012.264-2.37l.06-.27c.168-.757.252-1.136.2-1.497a2 2 0 0 0-.198-.623c-.166-.325-.452-.586-1.026-1.108l-.34-.31c-1.227-1.116-1.84-1.674-1.756-2.207a1 1 0 0 1 .106-.316c.255-.476 1.09-.55 2.758-.7.986-.088 1.479-.132 1.873-.37a2 2 0 0 0 .311-.231c.342-.31.524-.765.89-1.675Z" fill="#FF9900" stroke="#FF9900" stroke-width="2"></path></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="#FF9900" xmlns="http://www.w3.org/2000/svg" size="18"><path d="M10.307 7.22c.642-1.6.963-2.401 1.485-2.512a1 1 0 0 1 .416 0c.522.11.843.911 1.485 2.512.365.91.547 1.365.889 1.675.096.087.2.164.31.23.395.239.888.283 1.874.371 1.669.15 2.503.224 2.758.7.053.099.089.205.106.316.085.533-.529 1.09-1.755 2.207l-.341.31c-.574.522-.86.783-1.026 1.108-.1.195-.167.406-.198.623-.052.361.032.74.2 1.497l.06.27c.301 1.358.452 2.037.264 2.37a1 1 0 0 1-.824.508c-.382.019-.921-.42-2-1.299-.71-.579-1.065-.868-1.459-.981a2 2 0 0 0-1.102 0c-.394.113-.75.402-1.46.981-1.078.878-1.617 1.318-2 1.3a1 1 0 0 1-.823-.509c-.188-.333-.037-1.012.264-2.37l.06-.27c.168-.757.252-1.136.2-1.497a2 2 0 0 0-.198-.623c-.166-.325-.452-.586-1.026-1.108l-.34-.31c-1.227-1.116-1.84-1.674-1.756-2.207a1 1 0 0 1 .106-.316c.255-.476 1.09-.55 2.758-.7.986-.088 1.479-.132 1.873-.37a2 2 0 0 0 .311-.231c.342-.31.524-.765.89-1.675Z" fill="#FF9900" stroke="#FF9900" stroke-width="2"></path></svg></div></div></div><div class="w-20 mx-auto"><button class="text-xs p-2 font-semibold rounded-md bg-primary">Unduh</button></div></div>-->
+		<section class="container mx-auto px-3 lg:h-[66px]">
+			<div class="flex items-center justify-between py-3">
+				<div class="flex items-center">
+					<a href="<?php echo $alamat_website . 'home'; ?>">
+						<img alt="Logo Brand" fetchpriority="high" loading="eager" width="0" height="0" decoding="async" data-nimg="1" class="h-7 lg:h-8 w-auto" style="color: transparent;" src="<?php echo 'assets/img/' . $isi_1_logo_web; ?>"></a>
+				</div>
+				<?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) : ?>
+					<div class="flex">
+						<div class="hidden lg:block relative">
+							<div class="flex items-center relative">
+								<div class="w-9 h-9 mr-2 flex justify-center items-center rounded-full bg-background-secondary border border-base">
+									<p class="text-xl font-bold text-center leading-[48px]"><?php echo $inisial; ?></p>
+								</div>
+								<button class="mr-2" id="menu-toggle">
+									<?php echo $_SESSION['nama_pengguna_anggota']; ?>
+									<figure id="menu-toggle" class="rotate-90 px-1 transition-all duration-300 ease-in-out cursor-pointer">
+										<svg width="20" height="20" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="20">
+											<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+										</svg>
+									</figure>
+								</button>
+								<button id="instant-deposit" class="bg-primary text-white justify-center py-2 px-3 mr-2 rounded-xl transition-all duration-200 ease-in-out hover:lg:brightness-90">Instant Deposit
+								</button>
+								<script>
+									document.getElementById('instant-deposit').addEventListener('click', function() {
+										window.location.href = '<?php echo $alamat_website . 'deposit'; ?>';
+									});
+								</script>
+								<div id="account-navigation-options" class="absolute top-16 right-40 w-60 max-h-0 overflow-hidden bg-background-secondary shadow-[0px_-2px_20px_-5px_black] rounded-xl transition-all duration-500 ease-in-out">
+									<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'my-account'; ?>">
+										<div class="flex items-center w-[calc(100%-24px)] pr-1">
+											<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+												<path d="M19.651 20.431c.553-.115.883-.694.608-1.187-.606-1.088-1.56-2.043-2.78-2.772-1.572-.938-3.498-1.446-5.479-1.446-1.981 0-3.907.508-5.479 1.446-1.22.729-2.174 1.684-2.78 2.772-.275.493.055 1.072.607 1.187a37.503 37.503 0 0015.303 0z" fill="var(--primary)"></path>
+												<circle cx="12" cy="8.026" r="5" fill="var(--primary)"></circle>
+											</svg>
+											<span class="text-sm pl-2 undefined undefined">My Account</span>
+										</div>
+										<figure class="w-6">
+											<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+												<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+											</svg>
+										</figure>
+									</a><a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'deposit'; ?>">
+										<div class="flex items-center w-[calc(100%-24px)] pr-1">
+											<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+												<g clip-path="url(#a)">
+													<path d="M13.942 18.995c-.341.341-.925.1-.925-.383V16.39a.541.541 0 0 0-.541-.541h-.375c-.3 0-.542.242-.542.541v2.224a.541.541 0 0 1-.924.382.541.541 0 0 0-.765 0l-.265.265a.541.541 0 0 0 0 .766l2.3 2.3a.541.541 0 0 0 .766 0l2.3-2.3a.541.541 0 0 0 0-.765l-.264-.266a.54.54 0 0 0-.765 0Z" fill="var(--primary)"></path>
+													<path fill-rule="evenodd" clip-rule="evenodd" d="M12.288 16.577a7.288 7.288 0 1 0 0-14.577 7.288 7.288 0 1 0 0 14.577Zm2.186-9.475h-2.186a.73.73 0 0 0 0 1.457c1.205 0 2.186.981 2.186 2.187 0 .949-.611 1.75-1.457 2.052v1.592h-1.458v-1.458h-1.457v-1.457h2.186a.73.73 0 0 0 0-1.458 2.189 2.189 0 0 1-2.186-2.186c0-.95.611-1.751 1.457-2.053V4.187h1.458v1.458h1.457v1.457Z" fill="var(--primary)"></path>
+													<path d="M7.186 22.407H5.73A.729.729 0 0 1 5 21.68V20.22a.729.729 0 0 1 1.458 0c0 .402.326.729.728.729a.729.729 0 0 1 0 1.457ZM18.849 22.407H17.39a.729.729 0 0 1 0-1.457.729.729 0 0 0 .729-.729.729.729 0 0 1 1.457 0v1.458a.729.729 0 0 1-.728.729Z" fill="var(--primary)"></path>
+												</g>
+												<defs>
+													<clippath id="a">
+														<path fill="#fff" transform="translate(5 2)" d="M0 0h14.577v20.485H0z"></path>
+													</clippath>
+												</defs>
+											</svg><span class="text-sm pl-2 undefined undefined">Deposit</span>
+										</div>
+										<figure class="w-6">
+											<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+												<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+											</svg>
+										</figure>
+									</a>
+									<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'withdraw'; ?>">
+										<div class="flex items-center w-[calc(100%-24px)] pr-1">
+											<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+												<path fill-rule="evenodd" clip-rule="evenodd" d="M7 2a5 5 0 0 0-5 5v10a5 5 0 0 0 5 5h10a5 5 0 0 0 5-5V7a5 5 0 0 0-5-5H7Zm.386 8.322 4-3.111.614-.478.614.478 4 3.11-1.228 1.58L13 10.044V15a1 1 0 1 1-2 0v-4.955L8.614 11.9l-1.228-1.578Z" fill="var(--primary)"></path>
+											</svg>
+											<span class="text-sm pl-2 undefined undefined">Withdraw</span>
+										</div>
+										<figure class="w-6">
+											<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+												<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+											</svg>
+										</figure>
+									</a><a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'history-deposit'; ?>">
+										<div class="flex items-center w-[calc(100%-24px)] pr-1">
+											<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+												<path fill-rule="evenodd" clip-rule="evenodd" d="M12 1v5.56c0 .466 0 .92.05 1.294.057.421.195.902.594 1.302.4.4.88.537 1.302.594.374.05.828.05 1.294.05h5.56v6.6c0 3.111 0 4.667-.966 5.634C18.867 23 17.31 23 14.2 23H9.8c-3.111 0-4.667 0-5.633-.966C3.2 21.067 3.2 19.51 3.2 16.4V7.6c0-3.111 0-4.667.967-5.633C5.133 1 6.689 1 9.8 1H12Zm2.2.005V6.5c0 .55.002.851.03 1.06l.002.008.008.002c.209.028.51.03 1.06.03h5.495c-.011-.453-.047-.752-.163-1.03-.167-.405-.485-.723-1.12-1.359L16.588 2.29c-.636-.636-.954-.954-1.358-1.122-.278-.115-.578-.15-1.031-.162ZM7.6 13.1A1.1 1.1 0 0 1 8.7 12h6.6a1.1 1.1 0 0 1 0 2.2H8.7a1.1 1.1 0 0 1-1.1-1.1Zm1.1 3.3a1.1 1.1 0 0 0 0 2.2h4.4a1.1 1.1 0 0 0 0-2.2H8.7Z" fill="var(--primary)"></path>
+											</svg>
+											<span class="text-sm pl-2 undefined undefined">History</span>
+										</div>
+										<figure class="w-6">
+											<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+												<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+											</svg>
+										</figure>
+									</a>
+									<a class="justify-between px-4 py-3 flex cursor-pointer hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'logout'; ?>">
+										<div class="flex items-center w-[calc(100%-24px)] pr-1">
+											<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+												<path d="m2 12-.78-.625-.5.625.5.625L2 12Zm9 1a1 1 0 1 0 0-2v2ZM5.22 6.375l-4 5 1.56 1.25 4-5-1.56-1.25Zm-4 6.25 4 5 1.56-1.25-4-5-1.56 1.25ZM2 13h9v-2H2v2ZM13.342 20.557l.165-.986-.165.986Zm7.597.19.646.764-.646-.763ZM15.014 3.165l-.165-.986.165.986Zm5.925.088.646-.763-.646.763ZM13.507 4.43l1.671-.278-.329-1.973-1.671.279.329 1.972ZM21 9.083v5.834h2V9.083h-2Zm-5.822 10.766-1.671-.278-.329 1.973 1.671.278.329-1.973ZM11 8.132v-.743H9v.743h2Zm0 8.48v-.546H9v.546h2Zm2.507 2.959c-.824-.138-1.35-.227-1.734-.342-.358-.106-.472-.201-.536-.277l-1.526 1.293c.41.484.932.735 1.491.901.532.159 1.203.269 1.976.398l.329-1.973ZM9 16.61c0 .784-.002 1.464.067 2.015.072.578.234 1.135.644 1.619l1.526-1.293c-.064-.075-.14-.203-.185-.574-.05-.398-.052-.932-.052-1.767H9Zm12-1.694c0 1.675-.002 2.823-.123 3.67-.116.82-.32 1.174-.584 1.398l1.293 1.526c.797-.675 1.123-1.593 1.272-2.642.144-1.021.142-2.338.142-3.952h-2Zm-6.15 6.905c1.59.265 2.89.484 3.92.51 1.06.025 2.018-.146 2.816-.821l-1.293-1.526c-.264.223-.646.367-1.474.347-.856-.021-1.99-.207-3.641-.483l-.329 1.973Zm.328-17.671c1.652-.275 2.785-.462 3.64-.483.829-.02 1.21.124 1.475.347l1.293-1.526c-.797-.675-1.757-.846-2.816-.82-1.03.025-2.33.244-3.92.509l.328 1.973ZM23 9.083c0-1.614.002-2.93-.142-3.952-.15-1.049-.476-1.967-1.273-2.642l-1.292 1.526c.264.224.468.577.584 1.397.12.848.123 1.996.123 3.67h2Zm-9.822-6.626c-.773.128-1.444.238-1.976.397-.559.166-1.081.417-1.491.901l1.526 1.293c.064-.076.178-.17.536-.277.384-.115.91-.204 1.734-.342l-.329-1.972ZM11 7.389c0-.835.002-1.369.052-1.767.046-.37.121-.499.185-.574L9.711 3.755c-.41.484-.572 1.04-.644 1.62C8.998 5.924 9 6.604 9 7.388h2Z" fill="var(--primary)"></path>
+											</svg>
+											<span class="text-sm pl-2 undefined undefined">Logout</span>
+										</div>
+									</a>
+								</div>
+							</div>
+						</div>
+						<button class="toggle-btn" aria-label="Sidebar Toggle Button">
+							<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="30">
+								<path d="M5 7h14M5 12h14M5 17h14" stroke="var(--base)" stroke-linecap="round"></path>
+							</svg>
+						</button>
+					</div>
+			</div>
+		</section>
+	<?php else : ?>
+		<div class="flex">
+			<div class="hidden lg:block relative">
+				<form id="loginDesktop" class="flex" method="post" action="process_login">
+					<input id="usernameCompact" name="nama_pengguna_anggota" class="bg-background-secondary w-[160px] rounded-md py-1 px-2 mx-1 border border-background-secondary focus:outline-none focus:border-primary focus:ring-primary" placeholder="Username" autocomplete="username" type="text" value="">
+					<div class="relative flex items-center">
+						<input id="passwordCompact" name="kata_sandi_anggota" class="bg-background-secondary w-[160px] rounded-md py-1 px-2 mx-1 border border-background-secondary focus:outline-none focus:border-primary focus:ring-primary" placeholder="Password" autocomplete="password" type="password" value="">
+						<span class="absolute right-2 cursor-pointer bg-background-secondary px-2">
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" size="20">
+								<path fill-rule="evenodd" clip-rule="evenodd" d="M15.92 12.799a4 4 0 0 0-4.719-4.719l.923.923a3 3 0 0 1 2.873 2.873l.923.923Zm-6.527-2.285a3 3 0 0 0 4.093 4.093l.726.726a4 4 0 0 1-5.545-5.545l.726.726Z" fill="#fff"></path>
+								<path fill-rule="evenodd" clip-rule="evenodd" d="m16.154 17.275-.735-.734c-1.064.579-2.22.959-3.419.959-1.672 0-3.262-.74-4.633-1.726-1.367-.984-2.474-2.182-3.17-3.026-.423-.515-.467-.604-.467-.748 0-.143.044-.233.468-.748.67-.812 1.72-1.953 3.018-2.915L6.5 7.623C5.17 8.63 4.104 9.793 3.426 10.616l-.059.072c-.33.399-.637.77-.637 1.312s.307.913.637 1.312l.059.072c.725.88 1.894 2.149 3.357 3.201C8.243 17.635 10.036 18.5 12 18.5c1.51 0 2.92-.511 4.154-1.225ZM9.19 6.07c.88-.35 1.824-.569 2.81-.569 1.964 0 3.758.865 5.217 1.915 1.463 1.052 2.632 2.321 3.357 3.201l.059.072c.33.399.637.77.637 1.312s-.307.913-.637 1.312l-.059.072a19.988 19.988 0 0 1-1.983 2.086l-.708-.708a18.943 18.943 0 0 0 1.92-2.014c.424-.515.467-.604.467-.748 0-.143-.043-.233-.468-.748-.695-.844-1.802-2.042-3.17-3.026C15.263 7.24 13.673 6.5 12 6.5c-.694 0-1.375.128-2.031.348l-.78-.78Z" fill="#fff"></path>
+								<path d="m5 2 16 16" stroke="#fff"></path>
+							</svg>
+						</span>
+					</div>
+					<button aria-label="Button Login Header Form" aria-labelledby="Button Login Header Form" type="submit" class="bg-primary px-2 py-1 text-sm justify-center rounded-lg mx-1 h-full min-w-[56px] min-h-[34px] text-white hover:lg:brightness-90 transition-all duration-300 ease-in-out">Login</button>
+					<a class="bg-white text-primary px-2 py-1 text-sm rounded-lg mx-1 h-full min-h-[34px] hover:lg:brightness-90 transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'auth-register'; ?>">Sign Up</a>
+				</form>
+			</div>
+			<button class="toggle-btn" aria-label="Sidebar Toggle Button">
+				<svg width="30" height="30" viewBox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="30">
+					<path d="M5 7h14M5 12h14M5 17h14" stroke="var(--base)" stroke-linecap="round"></path>
+				</svg>
+			</button>
+		</div>
+		</div>
+		</section>
+	<?php endif; ?>
+	<div class="h-[60px] lg:h-[53px] transition-all duration-500 ease-out overflow-hidden">
+		<section class="bg-background-secondary">
+			<div class="container mx-auto px-0 py-2 overflow-auto flex justify-between lg:justify-center navigation">
+				<div class="lg:flex py-2 lg:py-3 whitespace-nowrap overflow-x-auto lg:justify-center"></div>
+				<div class="hidden lg:flex">
+					<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'home'; ?>">
+						<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+							<svg width="100%" height="100%" viewBox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg">
+								<path d="M21.462 13.303c-.348.348-.81.54-1.302.54h-.302v6.004a2.157 2.157 0 0 1-2.155 2.155h-3.778v-5.294a.984.984 0 0 0-.984-.983H11.06a.984.984 0 0 0-.984.983v5.294H6.297a2.158 2.158 0 0 1-2.155-2.155v-6.005h-.325c-.02 0-.038 0-.057-.002a1.843 1.843 0 0 1-1.225-3.137l.008-.009 8.155-8.155A1.83 1.83 0 0 1 12 2c.492 0 .954.193 1.302.54l8.16 8.16a1.844 1.844 0 0 1 0 2.604Z" fill="var(--primary)"></path>
+							</svg>
+						</div>
+						<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Home</p>
+					</a>
+				</div>
+
+				<!-- Lottery -->
+				<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'lottery'; ?>">
+					<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+						<svg width="100%" height="100%" viewbox="0 0 25 25" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+							<?php include_once 'svg/lottery_svg.php'; ?>
+						</svg>
+					</div>
+					<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Lottery</p>
+				</a>
+
+				<!-- Slot -->
+				<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'slot'; ?>">
+					<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+						<svg width="100%" height="100%" viewbox="0 0 25 25" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+							<?php include_once 'svg/slot_svg.php'; ?>
+						</svg>
+					</div>
+					<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Slot</p>
+				</a>
+
+				<!-- Casino -->
+				<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'casino'; ?>">
+					<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+						<svg width="100%" height="100%" viewbox="0 0 24 24" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+							<?php include_once 'svg/casino_svg.php'; ?>
+						</svg>
+					</div>
+					<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Casino</p>
+				</a>
+
+				<!-- Games -->
+				<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'egames'; ?>">
+					<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+						<svg width="100%" height="100%" viewbox="0 0 25 25" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+							<?php include_once 'svg/games_svg.php'; ?>
+						</svg>
+					</div>
+					<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Games</p>
+				</a>
+
+				<!-- Sports -->
+				<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'sports'; ?>">
+					<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+						<svg width="100%" height="100%" viewbox="0 0 25 25" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+							<?php include_once 'svg/sports_svg.php'; ?>
+						</svg>
+					</div>
+					<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Sports</p>
+				</a>
+
+				<!-- Promo -->
+				<a class="inline-block lg:flex w-[18%] lg:w-auto lg:mx-5 lg:px-1 lg:py-1 border-b border-b-background-secondary hover:lg:border-b-primary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'promo'; ?>">
+					<div class="w-6 h-6 lg:w-7 lg:h-7 mx-auto">
+						<svg width="100%" height="100%" viewbox="0 0 25 25" fill="var(--separator)" xmlns="http://www.w3.org/2000/svg">
+							<?php include_once 'svg/promo_svg.php'; ?>
+						</svg>
+					</div>
+					<p class="text-[10px] lg:text-sm mt-1 lg:mt-0 lg:ml-1 uppercase text-center false">Promo</p>
+				</a>
+			</div>
+		</section>
+	</header>
+	
+	<?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) : ?>
+		<main id="main-component" class="min-h-screen transition-all duration-500 ease-out lg:pb-0 relative" style="padding-top: 120px;">
+			<!--$!-->
+			<template data-dgst="NEXT_DYNAMIC_NO_SSR_CODE"></template>
+			<div class="fixed z-[1000] transition duration-300 ease-in-out overscroll-contain -right-3/4 w-0"></div>
+			<aside class="sidebar">
+				<div class="flex justify-between items-center px-4 mt-4 h-[64px]">
+					<div class="flex">
+						<div class="flex-none w-10 md:w-12 h-10 md:h-12 flex items-center justify-center rounded-full bg-background-secondary border border-base">
+							<p class="text-xl md:text-3xl font-bold"><?php echo $inisial; ?></p>
+						</div>
+						<div class="px-3 flex">
+							<div class="flex items-center">
+								<div>
+									<p class="text-xs truncate"><?php echo htmlspecialchars($nama_pengguna); ?></p>
+									<span class="text-sm font-medium flex items-center h-6">IDR <?php echo number_format($_SESSION['saldo_anggota'], 0, ',', '.'); ?>
+										<button class="ml-3 w-6 h-6 items-center justify-center rotate-270 rounded-full bg-background-secondary flex" onclick="window.location.reload();">
+											<svg width="18" height="18" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="m10 19-.707-.707-.707.707.707.707L10 19Zm3.293-4.707-4 4 1.414 1.414 4-4-1.414-1.414Zm-4 5.414 4 4 1.414-1.414-4-4-1.414 1.414Z" fill="var(--caption)"></path>
+												<path d="M5.938 15.5A7 7 0 1 1 12 19" stroke="var(--caption)" stroke-width="2" stroke-linecap="round"></path>
+											</svg>
+										</button>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<button class="close-btn" aria-label="Close Sidebar">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" size="24">
+							<path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+						</svg>
+					</button>
+				</div>
+				<div id="sidebar-navigation-options" class="mt-3 landscape:h-[calc(100%-120px)] landscape:overflow-auto">
+					<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'home'; ?>">
+						<div class="flex items-center w-[calc(100%-24px)] pr-1">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+								<path d="M21.462 13.303c-.348.348-.81.54-1.302.54h-.302v6.004a2.157 2.157 0 0 1-2.155 2.155h-3.778v-5.294a.984.984 0 0 0-.984-.983H11.06a.984.984 0 0 0-.984.983v5.294H6.297a2.158 2.158 0 0 1-2.155-2.155v-6.005h-.325c-.02 0-.038 0-.057-.002a1.843 1.843 0 0 1-1.225-3.137l.008-.009 8.155-8.155A1.83 1.83 0 0 1 12 2c.492 0 .954.193 1.302.54l8.16 8.16a1.844 1.844 0 0 1 0 2.604Z" fill="var(--primary)"></path>
+							</svg>
+							<span class="text-sm pl-2 undefined text-primary">Home</span>
+						</div>
+						<figure class="w-6">
+							<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--primary)"></path>
+							</svg>
+						</figure>
+					</a>
+					<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'promo'; ?>">
+						<div class="flex items-center w-[calc(100%-24px)] pr-1">
+							<svg width="24" height="24" viewbox="0 0 25 25" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="24">
+								<g fill="var(--base)">
+									<path d="M17.011 14.523a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716ZM22.023 4.5H8.42a.723.723 0 0 0-.507.209l-.924.927-.925-.927a.722.722 0 0 0-.507-.209h-3.58c-.789 0-1.432.643-1.432 1.432v12.886c0 .79.643 1.432 1.432 1.432h3.58c.19 0 .372-.076.507-.209l.925-.927.924.926c.135.134.317.21.507.21h13.603c.79 0 1.431-.642 1.431-1.432V5.932c0-.789-.64-1.432-1.431-1.432ZM7.704 17.386H6.273v-1.431h1.432v1.431Zm0-2.863H6.274V13.09h1.432v1.432Zm0-2.864H6.274v-1.432h1.432v1.432Zm0-2.864H6.274V7.364h1.432v1.431Zm5.012-1.431a2.15 2.15 0 0 1 2.148 2.147 2.15 2.15 0 0 1-2.148 2.148 2.15 2.15 0 0 1-2.148-2.148 2.15 2.15 0 0 1 2.148-2.147Zm-1.432 10.022a.716.716 0 0 1-.55-1.174l7.16-8.59a.717.717 0 0 1 1.099.918l-7.16 8.59a.715.715 0 0 1-.549.256Zm5.727 0a2.15 2.15 0 0 1-2.147-2.147 2.15 2.15 0 0 1 2.147-2.148 2.15 2.15 0 0 1 2.148 2.148 2.15 2.15 0 0 1-2.148 2.147Zm0-2.863a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm-4.295-4.296a.716.716 0 1 0 0-1.432.716.716 0 0 0 0 1.432Zm4.295 4.296a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Z"></path>
+									<path d="M6.273 7.364v1.431h.716v1.432h-.716v1.432h.716v1.432h-.716v1.432h.716v1.431h-.716v1.432h.716v1.728l-.925.927a.722.722 0 0 1-.507.209h-3.58a1.433 1.433 0 0 1-1.432-1.432V5.932c0-.789.643-1.432 1.432-1.432h3.58c.19 0 .372.076.507.209l.925.927v1.728h-.716Z"></path>
+								</g>
+							</svg><span class="text-sm pl-2 undefined false">Promotions</span>
+						</div>
+						<figure class="w-6"><svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+							</svg>
+						</figure>
+					</a>
+					<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'about'; ?>">
+						<div class="flex items-center w-[calc(100%-24px)] pr-1">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="24">
+								<path d="M16 3v3M8 3v3" stroke="var(--base)" stroke-width="2" stroke-linecap="round"></path>
+								<path fill-rule="evenodd" clip-rule="evenodd" d="M14 4h-4v2a2 2 0 1 1-4 0V4.076c-.975.096-1.631.313-2.121.803C3 5.757 3 7.172 3 10v5c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15v-5c0-2.828 0-4.243-.879-5.121-.49-.49-1.146-.707-2.121-.803V6a2 2 0 1 1-4 0V4Zm-7 8a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H8Z" fill="var(--base)"></path>
+							</svg>
+							<span class="text-sm pl-2 undefined false">About Us</span>
+						</div>
+						<figure class="w-6">
+							<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+							</svg>
+						</figure>
+					</a>
+					<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'referal'; ?>">
+						<div class="flex items-center w-[calc(100%-24px)] pr-1">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="24">
+								<circle cx="10" cy="8" r="5" fill="var(--base)"></circle>
+								<path d="M19 10v6M22 13h-6" stroke="var(--base)" stroke-width="2" stroke-linecap="round"></path>
+								<path d="M17.142 20.383c.462-.105.739-.585.534-1.012-.552-1.15-1.459-2.162-2.634-2.924C13.595 15.508 11.823 15 10 15s-3.595.508-5.042 1.447c-1.175.762-2.082 1.773-2.634 2.924-.205.427.072.907.534 1.012a32.333 32.333 0 0 0 14.284 0Z" fill="var(--base)"></path>
+							</svg>
+							<span class="text-sm pl-2 undefined false">Referral</span>
+						</div>
+						<figure class="w-6">
+							<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+							</svg>
+						</figure>
+					</a>
+					<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $isi_1_link_livechat_web; ?>" target="blank">
+						<div class="flex items-center w-[calc(100%-24px)] pr-1">
+							<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="16" y="12" width="4" height="7" rx="2" fill="var(--base)" stroke="var(--base)" stroke-width="2" stroke-linejoin="round"></rect>
+								<rect x="4" y="12" width="4" height="7" rx="2" fill="var(--base)" stroke="var(--base)" stroke-width="2" stroke-linejoin="round"></rect>
+								<path d="M4 13v3M20 13v3M20 13c0-2.387-.843-4.676-2.343-6.364C16.157 4.948 14.122 4 12 4s-4.157.948-5.657 2.636C4.843 8.324 4 10.613 4 13" stroke="var(--base)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+							</svg>
+							<span class="text-sm pl-2 undefined false">Help Center</span>
+						</div>
+						<figure class="w-6">
+							<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+							</svg>
+						</figure>
+					</a>
+					<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $isi_1_link_livechat_web; ?>" target="blank">
+						<div class="flex items-center w-[calc(100%-24px)] pr-1">
+							<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24" height="24" viewbox="0 0 512 512" size="24" fill="var(--base)">
+								<path fill="var(--base)" d="M120.606 169h270.788v220.663c0 13.109-10.628 23.737-23.721 23.737H340.55v67.203c0 17.066-13.612 30.897-30.415 30.897-16.846 0-30.438-13.831-30.438-30.897V413.4h-47.371v67.203c0 17.066-13.639 30.897-30.441 30.897-16.799 0-30.437-13.831-30.437-30.897V413.4h-27.099c-13.096 0-23.744-10.628-23.744-23.737V169zm-53.065-1.801c-16.974 0-30.723 13.963-30.723 31.2v121.937c0 17.217 13.749 31.204 30.723 31.204 16.977 0 30.723-13.987 30.723-31.204V198.399c0-17.237-13.746-31.2-30.723-31.2zm323.854-20.435H120.606c3.342-38.578 28.367-71.776 64.392-90.998l-25.746-37.804c-3.472-5.098-2.162-12.054 2.946-15.525C167.3-1.034 174.242.286 177.731 5.38l28.061 41.232c15.558-5.38 32.446-8.469 50.208-8.469 17.783 0 34.672 3.089 50.229 8.476L334.29 5.395c3.446-5.108 10.41-6.428 15.512-2.957 5.108 3.471 6.418 10.427 2.946 15.525l-25.725 37.804c36.024 19.21 61.032 52.408 64.372 90.997zm-177.53-52.419c0-8.273-6.699-14.983-14.969-14.983-8.291 0-14.99 6.71-14.99 14.983 0 8.269 6.721 14.976 14.99 14.976s14.969-6.707 14.969-14.976zm116.127 0c0-8.273-6.722-14.983-14.99-14.983-8.291 0-14.97 6.71-14.97 14.983 0 8.269 6.679 14.976 14.97 14.976 8.269 0 14.99-6.707 14.99-14.976zm114.488 72.811c-16.956 0-30.744 13.984-30.744 31.222v121.98c0 17.238 13.788 31.226 30.744 31.226 16.978 0 30.701-13.987 30.701-31.226v-121.98c.001-17.238-13.723-31.222-30.701-31.222z"></path>
+							</svg>
+							<span class="text-sm pl-2 undefined false">Mobile Application<span class="text-xs px-2 ml-2 rounded-sm bg-success">New</span>
+							</span>
+						</div>
+						<figure class="w-6">
+							<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+							</svg>
+						</figure>
+					</a>
+					<div class="px-3 py-1">
+						<a href="<?php echo $alamat_website . 'logout'; ?>" class="w-full justify-between border border-base py-2 px-2 pl-3 rounded-full">
+							<figure class="flex items-center">
+								</figure>
+								<span>LOGOUT</span>
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+								<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+							</svg>
+							</a>
+					</div>
+				</div>
+				<p class="text-center text-sm text-caption absolute landscape:relative landscape:bottom-0 bottom-6 left-0 right-0">
+					Version
+					<!-- -->
+					<!-- -->
+					3.4.0.2
+				</p>
+			</aside>
+		<?php else : ?>
+			<main id="main-component" class="min-h-screen transition-all duration-500 ease-out lg:pb-0 relative" style="padding-top: 120px;">
+				<!--$!-->
+				<template data-dgst="NEXT_DYNAMIC_NO_SSR_CODE"></template>
+				<div class="fixed z-[1000] transition duration-300 ease-in-out overscroll-contain -right-3/4 w-0"></div>
+				<aside class="sidebar">
+					<div class="flex justify-between items-center px-4 mt-4 h-[64px]">
+						<div class="flex items-center">
+							<a href="<?php echo $alamat_website . 'home'; ?>">
+								<img alt="Logo Brand" loading="lazy" width="0" height="0" decoding="async" data-nimg="1" class="h-6 lg:h-8 w-auto" style="color: transparent;" src="<?php echo 'assets/img/' . $isi_1_logo_web; ?>">
+							</a>
+						</div>
+						<button class="close-btn" aria-label="Close Sidebar">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" size="24">
+								<path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+							</svg>
+						</button>
+					</div>
+					<div id="sidebar-navigation-options" class="mt-3 landscape:h-[calc(100%-120px)] landscape:overflow-auto">
+						<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'home'; ?>">
+							<div class="flex items-center w-[calc(100%-24px)] pr-1">
+								<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="24">
+									<path d="M21.462 13.303c-.348.348-.81.54-1.302.54h-.302v6.004a2.157 2.157 0 0 1-2.155 2.155h-3.778v-5.294a.984.984 0 0 0-.984-.983H11.06a.984.984 0 0 0-.984.983v5.294H6.297a2.158 2.158 0 0 1-2.155-2.155v-6.005h-.325c-.02 0-.038 0-.057-.002a1.843 1.843 0 0 1-1.225-3.137l.008-.009 8.155-8.155A1.83 1.83 0 0 1 12 2c.492 0 .954.193 1.302.54l8.16 8.16a1.844 1.844 0 0 1 0 2.604Z" fill="var(--primary)"></path>
+								</svg>
+								<span class="text-sm pl-2 undefined text-primary">Home</span>
+							</div>
+							<figure class="w-6">
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--primary)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--primary)"></path>
+								</svg>
+							</figure>
+						</a>
+						<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'promo'; ?>">
+							<div class="flex items-center w-[calc(100%-24px)] pr-1">
+								<svg width="24" height="24" viewbox="0 0 25 25" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="24">
+									<g fill="var(--base)">
+										<path d="M17.011 14.523a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716ZM22.023 4.5H8.42a.723.723 0 0 0-.507.209l-.924.927-.925-.927a.722.722 0 0 0-.507-.209h-3.58c-.789 0-1.432.643-1.432 1.432v12.886c0 .79.643 1.432 1.432 1.432h3.58c.19 0 .372-.076.507-.209l.925-.927.924.926c.135.134.317.21.507.21h13.603c.79 0 1.431-.642 1.431-1.432V5.932c0-.789-.64-1.432-1.431-1.432ZM7.704 17.386H6.273v-1.431h1.432v1.431Zm0-2.863H6.274V13.09h1.432v1.432Zm0-2.864H6.274v-1.432h1.432v1.432Zm0-2.864H6.274V7.364h1.432v1.431Zm5.012-1.431a2.15 2.15 0 0 1 2.148 2.147 2.15 2.15 0 0 1-2.148 2.148 2.15 2.15 0 0 1-2.148-2.148 2.15 2.15 0 0 1 2.148-2.147Zm-1.432 10.022a.716.716 0 0 1-.55-1.174l7.16-8.59a.717.717 0 0 1 1.099.918l-7.16 8.59a.715.715 0 0 1-.549.256Zm5.727 0a2.15 2.15 0 0 1-2.147-2.147 2.15 2.15 0 0 1 2.147-2.148 2.15 2.15 0 0 1 2.148 2.148 2.15 2.15 0 0 1-2.148 2.147Zm0-2.863a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm-4.295-4.296a.716.716 0 1 0 0-1.432.716.716 0 0 0 0 1.432Zm4.295 4.296a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Zm0 0a.718.718 0 0 0-.716.716c0 .393.323.715.716.715a.718.718 0 0 0 .716-.715.718.718 0 0 0-.716-.716Z"></path>
+										<path d="M6.273 7.364v1.431h.716v1.432h-.716v1.432h.716v1.432h-.716v1.432h.716v1.431h-.716v1.432h.716v1.728l-.925.927a.722.722 0 0 1-.507.209h-3.58a1.433 1.433 0 0 1-1.432-1.432V5.932c0-.789.643-1.432 1.432-1.432h3.58c.19 0 .372.076.507.209l.925.927v1.728h-.716Z"></path>
+									</g>
+								</svg>
+								<span class="text-sm pl-2 undefined false">Promotions</span>
+							</div>
+							<figure class="w-6">
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+								</svg>
+							</figure>
+						</a>
+						<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'about'; ?>">
+							<div class="flex items-center w-[calc(100%-24px)] pr-1">
+								<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="24">
+									<path d="M16 3v3M8 3v3" stroke="var(--base)" stroke-width="2" stroke-linecap="round"></path>
+									<path fill-rule="evenodd" clip-rule="evenodd" d="M14 4h-4v2a2 2 0 1 1-4 0V4.076c-.975.096-1.631.313-2.121.803C3 5.757 3 7.172 3 10v5c0 2.828 0 4.243.879 5.121C4.757 21 6.172 21 9 21h6c2.828 0 4.243 0 5.121-.879C21 19.243 21 17.828 21 15v-5c0-2.828 0-4.243-.879-5.121-.49-.49-1.146-.707-2.121-.803V6a2 2 0 1 1-4 0V4Zm-7 8a1 1 0 0 1 1-1h8a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H8Z" fill="var(--base)"></path>
+								</svg>
+								<span class="text-sm pl-2 undefined false">About Us</span>
+							</div>
+							<figure class="w-6">
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+								</svg>
+							</figure>
+						</a>
+						<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $alamat_website . 'referal'; ?>">
+							<div class="flex items-center w-[calc(100%-24px)] pr-1">
+								<svg width="24" height="24" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="24">
+									<circle cx="10" cy="8" r="5" fill="var(--base)"></circle>
+									<path d="M19 10v6M22 13h-6" stroke="var(--base)" stroke-width="2" stroke-linecap="round"></path>
+									<path d="M17.142 20.383c.462-.105.739-.585.534-1.012-.552-1.15-1.459-2.162-2.634-2.924C13.595 15.508 11.823 15 10 15s-3.595.508-5.042 1.447c-1.175.762-2.082 1.773-2.634 2.924-.205.427.072.907.534 1.012a32.333 32.333 0 0 0 14.284 0Z" fill="var(--base)"></path>
+								</svg>
+								<span class="text-sm pl-2 undefined false">Referral</span>
+							</div>
+							<figure class="w-6">
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+								</svg>
+							</figure>
+						</a>
+						<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $isi_1_link_livechat_web; ?>" target="blank">
+							<div class="flex items-center w-[calc(100%-24px)] pr-1">
+								<svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<rect x="16" y="12" width="4" height="7" rx="2" fill="var(--base)" stroke="var(--base)" stroke-width="2" stroke-linejoin="round"></rect>
+									<rect x="4" y="12" width="4" height="7" rx="2" fill="var(--base)" stroke="var(--base)" stroke-width="2" stroke-linejoin="round"></rect>
+									<path d="M4 13v3M20 13v3M20 13c0-2.387-.843-4.676-2.343-6.364C16.157 4.948 14.122 4 12 4s-4.157.948-5.657 2.636C4.843 8.324 4 10.613 4 13" stroke="var(--base)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+								</svg>
+								<span class="text-sm pl-2 undefined false">Help Center</span>
+							</div>
+							<figure class="w-6">
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+								</svg>
+							</figure>
+						</a>
+						<a class="justify-between px-4 py-3 hover:lg:bg-background-tertiary transition-all duration-300 ease-in-out" href="<?php echo $isi_1_link_livechat_web; ?>" target="blank">
+							<div class="flex items-center w-[calc(100%-24px)] pr-1">
+								<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="24" height="24" viewbox="0 0 512 512" size="24" fill="var(--base)">
+									<path fill="var(--base)" d="M120.606 169h270.788v220.663c0 13.109-10.628 23.737-23.721 23.737H340.55v67.203c0 17.066-13.612 30.897-30.415 30.897-16.846 0-30.438-13.831-30.438-30.897V413.4h-47.371v67.203c0 17.066-13.639 30.897-30.441 30.897-16.799 0-30.437-13.831-30.437-30.897V413.4h-27.099c-13.096 0-23.744-10.628-23.744-23.737V169zm-53.065-1.801c-16.974 0-30.723 13.963-30.723 31.2v121.937c0 17.217 13.749 31.204 30.723 31.204 16.977 0 30.723-13.987 30.723-31.204V198.399c0-17.237-13.746-31.2-30.723-31.2zm323.854-20.435H120.606c3.342-38.578 28.367-71.776 64.392-90.998l-25.746-37.804c-3.472-5.098-2.162-12.054 2.946-15.525C167.3-1.034 174.242.286 177.731 5.38l28.061 41.232c15.558-5.38 32.446-8.469 50.208-8.469 17.783 0 34.672 3.089 50.229 8.476L334.29 5.395c3.446-5.108 10.41-6.428 15.512-2.957 5.108 3.471 6.418 10.427 2.946 15.525l-25.725 37.804c36.024 19.21 61.032 52.408 64.372 90.997zm-177.53-52.419c0-8.273-6.699-14.983-14.969-14.983-8.291 0-14.99 6.71-14.99 14.983 0 8.269 6.721 14.976 14.99 14.976s14.969-6.707 14.969-14.976zm116.127 0c0-8.273-6.722-14.983-14.99-14.983-8.291 0-14.97 6.71-14.97 14.983 0 8.269 6.679 14.976 14.97 14.976 8.269 0 14.99-6.707 14.99-14.976zm114.488 72.811c-16.956 0-30.744 13.984-30.744 31.222v121.98c0 17.238 13.788 31.226 30.744 31.226 16.978 0 30.701-13.987 30.701-31.226v-121.98c.001-17.238-13.723-31.222-30.701-31.222z"></path>
+								</svg>
+								<span class="text-sm pl-2 undefined false">Mobile Application
+									<span class="text-xs px-2 ml-2 rounded-sm bg-success">New</span>
+								</span>
+							</div>
+							<figure class="w-6">
+								<svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+								</svg>
+							</figure>
+						</a>
+						<div class="px-3 py-1">
+							<a href="<?php echo $alamat_website . 'auth-login'; ?>" class="w-full justify-between border border-base py-2 px-2 pl-3 rounded-full">
+								<figure class="flex items-center">
+								</figure>
+								<span>Login</span><svg width="22" height="22" viewbox="0 0 24 24" fill="var(--base)" xmlns="http://www.w3.org/2000/svg" size="22">
+									<path d="m15 12 .354-.354.353.354-.353.354L15 12ZM9.354 5.646l6 6-.708.708-6-6 .708-.708Zm6 6.708-6 6-.708-.708 6-6 .708.708Z" fill="var(--base)"></path>
+								</svg>
+							</a>
+						</div>
+					</div>
+					<p class="text-center text-sm text-caption absolute landscape:relative landscape:bottom-0 bottom-6 left-0 right-0">
+						Version
+						<!-- -->
+						<!-- -->
+						3.4.0.2
+					</p>
+				</aside>
+			<?php endif; ?>
+
+			<!--$-->
+			
+			<script>
+				const sidebar = document.querySelector('.sidebar');
+				const toggleBtn = document.querySelector('.toggle-btn');
+				const closeBtn = document.querySelector('.close-btn');
+
+				toggleBtn.addEventListener('click', function() {
+					sidebar.classList.toggle('active');
+				});
+
+				closeBtn.addEventListener('click', function() {
+					sidebar.classList.remove('active');
+				});
+
+				document.addEventListener('click', function(event) {
+					if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target) && !closeBtn.contains(event.target)) {
+						sidebar.classList.remove('active');
+					}
+				});
+
+				document.addEventListener('keydown', function(event) {
+					if (event.key === 'Escape') {
+						sidebar.classList.remove('active');
+					}
+				});
+			</script>
+			<script>
+				document.addEventListener("DOMContentLoaded", function() {
+					const toggleButton = document.getElementById("menu-toggle");
+					const navigationOptions = document.getElementById("account-navigation-options");
+
+					toggleButton.addEventListener("click", function() {
+						if (navigationOptions.style.maxHeight === "0px" || navigationOptions.style.maxHeight === "") {
+							navigationOptions.style.maxHeight = "400px";
+						} else {
+							navigationOptions.style.maxHeight = "0px";
+						}
+					});
+				});
+			</script>
+			<!--$-->
+			<script>
+				function setActiveMenu() {
+					const currentPath = window.location.pathname;
+					const menuItems = document.querySelectorAll('.navigation a');
+
+					menuItems.forEach(item => {
+						const href = item.getAttribute('href');
+						const pElement = item.querySelector('p');
+
+						if (currentPath.includes(href.split('/').pop())) { // Only check the last part of the path
+							pElement.classList.remove('false');
+							pElement.classList.add('text-primary');
+						} else {
+							pElement.classList.remove('text-primary');
+							pElement.classList.add('false');
+						}
+					});
+				}
+
+				document.addEventListener('DOMContentLoaded', setActiveMenu);
+			</script>
+			<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					const header = document.getElementById('header');
+					let lastScrollTop = 0;
+					let isThrottled = false;
+					const throttleDelay = 50;
+
+					function handleScroll() {
+						if (isThrottled) return;
+						isThrottled = true;
+						setTimeout(() => {
+							let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+							if (scrollTop > lastScrollTop) {
+								header.classList.add('header-hidden');
+							} else {
+								header.classList.remove('header-hidden');
+							}
+							lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+
+							isThrottled = false;
+						}, throttleDelay);
+					}
+
+					window.addEventListener('scroll', handleScroll);
+				});
+			</script>
+		
+<?php
+$nomor_floating = 1;
+$floating = mysqli_query($koneksi, "SELECT * FROM floating");
+while ($data_floating = mysqli_fetch_array($floating)) {
+    $id_floating = $data_floating['id_floating'];
+    $nama_floating = $data_floating['nama_floating'];
+    $link_floating = $data_floating['link_floating'];
+    $gambar_floating = $data_floating['gambar_floating'];
+    
+    // Menentukan URL tujuan
+    $href = empty($link_floating) ? $alamat_website . 'rtp' : $link_floating;
+    $alt_text = htmlspecialchars($nama_floating);
+    $src = $alamat_website . 'assets/img/' . htmlspecialchars($gambar_floating);
+    $bottom_position = 80 * $nomor_floating . 'px';
+    
+    // Output HTML
+    ?>
+    <div style="bottom: <?php echo $bottom_position; ?>; left: 5px; opacity: 0.98; position: fixed; z-index: 9999;">
+        <a href="<?php echo $href; ?>" rel="noopener" target="_blank">
+            <img alt="<?php echo $alt_text; ?>" class="wabutton" src="<?php echo $src; ?>" width="60" height="60">
+        </a>
+    </div>
+    <?php
+    $nomor_floating++;
+}
+?>
