@@ -97,8 +97,8 @@
         <div>Bonus</div>
       </a>
     </li>
-    <li class="menu-item" id="tambah_domain"> 
-  <a href="<?php echo $alamat_admin.'tambah_domain'; ?>" class="menu-link">
+    <li class="menu-item" id="add_domain"> 
+  <a href="<?php echo $alamat_admin.'add_domain'; ?>" class="menu-link">
     <i class="menu-icon tf-icons mdi mdi-web"></i>
       <div>Tambah Domain</div>
     </a>
