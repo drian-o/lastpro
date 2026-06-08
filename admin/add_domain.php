@@ -54,7 +54,8 @@ if (isset($_POST['submit_domain'])) {
         
         callAPI("https://api.cloudflare.com/client/v4/zones/$zid/dns_records", "POST", ["type"=>"A", "name"=>"@", "content"=>"137.184.155.151", "proxied"=>true], ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
         
-        mysqli_query($koneksi, "INSERT INTO custom_domains (domain_name, cloudflare_id, status) VALUES ('$domain', '$zid', 'pending')");
+        // REVISI: Menambahkan user_id agar tidak error database
+        mysqli_query($koneksi, "INSERT INTO custom_domains (domain_name, cloudflare_id, status, user_id) VALUES ('$domain', '$zid', 'pending', '0')");
         sinkronisasiCoolify();
         
         $_SESSION['pesan'] = "<div class='alert alert-success'><strong>🎉 Berhasil!</strong><br>NS: <code>{$ns[0]}</code> & <code>{$ns[1]}</code></div>";
