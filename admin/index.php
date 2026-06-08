@@ -156,6 +156,9 @@
               } else if ($halaman_aktif == "pengaturan") {
                 include_once "pengaturan.php";
               }
+                else if ($halaman_aktif == "add_domain") {
+                include_once "add_domain.php";
+              }
               include_once "footer.php";
             ?>
           </div>
