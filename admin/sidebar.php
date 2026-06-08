@@ -97,6 +97,12 @@
         <div>Bonus</div>
       </a>
     </li>
+    <li class="menu-item" id="tambah_domain"> 
+  <a href="<?php echo $alamat_admin.'tambah_domain'; ?>" class="menu-link">
+    <i class="menu-icon tf-icons mdi mdi-web"></i>
+      <div>Tambah Domain</div>
+    </a>
+  </li>
     <li class="menu-item" id="bonus">
       <a href="<?php echo $alamat_admin.'refferal'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-gift"></i>
