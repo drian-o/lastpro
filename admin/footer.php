@@ -9,8 +9,8 @@
         </script>
       </div>
       <div>
-        Versi : 04.04.2024
-        <!-- Pembuat : <a href="https://instagram.com/id.masgi" target="_blank" class="footer-link me-4">id.masgi</a> -->
+        Versi : V.3 Updated
+       <a href="https://t.me/khintilin" target="_blank" rel="noopener noreferrer">Lapor Kendala</a>
       </div>
     </div>
   </div>
