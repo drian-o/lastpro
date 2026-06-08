@@ -1,5 +1,6 @@
 <?php
-// drianproject
+// zuzulo/tambah_domain.php
+ob_start(); // Mencegah header error
 if (session_status() == PHP_SESSION_NONE) session_start();
 
 ini_set('display_errors', 0);
@@ -62,7 +63,7 @@ if (isset($_POST['submit_domain'])) {
     header("Location: ?halaman=tambah_domain"); exit;
 }
 
-// PROSES HAPUS (MENGGUNAKAN POST AGAR LEBIH STABIL)
+// PROSES HAPUS
 if (isset($_POST['submit_hapus'])) {
     $id = mysqli_real_escape_string($koneksi, $_POST['id']);
     $cf_id = mysqli_real_escape_string($koneksi, $_POST['cf_id']);
@@ -95,7 +96,7 @@ if (isset($_POST['submit_hapus'])) {
                 <td>{$row['domain_name']}</td>
                 <td><span class='badge {$badge}'>".strtoupper($row['status'])."</span></td>
                 <td>
-                    <form method='POST' onsubmit='return confirm(\"Yakin hapus?\")'>
+                    <form method='POST' style='display:inline;' onsubmit='return confirm(\"Yakin hapus?\")'>
                         <input type='hidden' name='id' value='{$row['id']}'>
                         <input type='hidden' name='cf_id' value='{$row['cloudflare_id']}'>
                         <button type='submit' name='submit_hapus' class='btn btn-danger btn-sm'>Hapus</button>
@@ -107,3 +108,4 @@ if (isset($_POST['submit_hapus'])) {
         </tbody>
     </table>
 </div>
+<?php ob_end_flush(); ?>
