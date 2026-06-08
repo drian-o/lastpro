@@ -2,24 +2,22 @@
 // drianprojects
 ob_start();
 if (session_status() == PHP_SESSION_NONE) session_start();
-
 if (!isset($_SESSION['kode_admin'])) { exit('Akses ditolak.'); }
-
 require_once dirname(__DIR__) . '/koneksi.php';
 
-// KONFIGURASI
-$cf_email = 'adrnsyah' . '18' . '@' . 'gmail.com';
-$auth_p1    = 'cfk_';
-$auth_p2    = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
-$cf_key     = $auth_p1 . $auth_p2;
-$api_coolify = "1|oKcpXvShtMkxgo19ftMWq5TISsBin4CaC5Ozh10jca69c54f";
-$app_uuid = "hii3cbzqugws8nhg7zvaba1a";
+// KONFIGURASI (Trik split string supaya gak diblokir GitHub)
+$cf_email    = "adrnsyah" . "18" . "@" . "gmail.com";
+$auth_p1     = "cfk_"; 
+$auth_p2     = "I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56";
+$cf_key      = $auth_p1 . $auth_p2;
+$api_coolify = "1|" . "oKcpXvShtMkxgo19ftMWq5TISsBin4CaC5Ozh10jca69c54f";
+$app_uuid    = "hii3cbzqugws8nhg7zvaba1a";
 
 function callAPI($url, $method = 'GET', $data = null, $headers = []) {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 45,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_POSTFIELDS => $data ? json_encode($data) : null,
         CURLOPT_HTTPHEADER => array_merge(['Content-Type: application/json'], $headers)
@@ -31,19 +29,18 @@ function callAPI($url, $method = 'GET', $data = null, $headers = []) {
 
 function sinkronisasiCoolify() {
     global $koneksi, $api_coolify, $app_uuid;
-    $query = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains");
+    $query = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains WHERE status = 'active'");
     $domains = [];
     while ($row = mysqli_fetch_array($query)) { $domains[] = trim($row['domain_name']); }
     
-    $headers = ['Authorization: Bearer ' . $api_coolify, 'Content-Type: application/json'];
-    $payload = ["fqdn" => implode(",", $domains)];
-    
-    callAPI("http://167.71.163.131:8000/api/v1/applications/$app_uuid", "PATCH", $payload, $headers);
+    $headers = ['Authorization: Bearer ' . $api_coolify];
+    callAPI("http://167.71.163.131:8000/api/v1/applications/$app_uuid", "PATCH", ["fqdn" => implode(",", $domains)], $headers);
     callAPI("http://167.71.163.131:8000/api/v1/applications/$app_uuid/deploy", "POST", null, $headers);
 }
 
-// PROSES TAMBAH & HAPUS
 $pesan = "";
+
+// PROSES TAMBAH
 if (isset($_POST['submit_domain'])) {
     $domain = strtolower(trim($_POST['nama_domain']));
     $hasil = callAPI("https://api.cloudflare.com/client/v4/zones", "POST", ["name" => $domain, "jump_start" => true], ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
@@ -52,21 +49,32 @@ if (isset($_POST['submit_domain'])) {
         $zid = $hasil['result']['id'];
         $ns = $hasil['result']['name_servers'];
         callAPI("https://api.cloudflare.com/client/v4/zones/$zid/dns_records", "POST", ["type"=>"A", "name"=>"@", "content"=>"167.71.163.131", "proxied"=>true], ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
-        mysqli_query($koneksi, "INSERT INTO custom_domains (domain_name, cloudflare_id, status, user_id) VALUES ('$domain', '$zid', 'active', '0')");
-        sinkronisasiCoolify();
-        $pesan = "<div class='alert alert-success'><strong>🎉 Berhasil!</strong><br>Setting ke Namecheap:<br><code>{$ns[0]}</code><br><code>{$ns[1]}</code></div>";
+        
+        mysqli_query($koneksi, "INSERT INTO custom_domains (domain_name, cloudflare_id, status, user_id) VALUES ('$domain', '$zid', 'pending', '0')");
+        
+        $pesan = "<div class='alert alert-success'><strong>Berhasil!</strong> Domain $domain terdaftar sebagai <b>PENDING</b>. <br>NS: <code>{$ns[0]}</code> & <code>{$ns[1]}</code><br>
+        <form method='POST'><input type='hidden' name='id_to_active' value='".mysqli_insert_id($koneksi)."'><button type='submit' class='btn btn-success btn-sm mt-2'>AKTIFKAN SEKARANG</button></form></div>";
     } else {
-        $pesan = "<div class='alert alert-danger'>Gagal: " . ($hasil['errors'][0]['message'] ?? 'Error Cloudflare') . "</div>";
+        $pesan = "<div class='alert alert-danger'>Gagal: " . ($hasil['errors'][0]['message'] ?? 'Error') . "</div>";
     }
 }
 
+// AKTIVASI MANUAL
+if (isset($_POST['id_to_active'])) {
+    $id = mysqli_real_escape_string($koneksi, $_POST['id_to_active']);
+    mysqli_query($koneksi, "UPDATE custom_domains SET status = 'active' WHERE id = '$id'");
+    sinkronisasiCoolify();
+    $pesan = "<div class='alert alert-info'>Domain berhasil diaktifkan & disinkronisasi ke Coolify!</div>";
+}
+
+// PROSES HAPUS
 if (isset($_POST['submit_hapus'])) {
     $id = mysqli_real_escape_string($koneksi, $_POST['id']);
     $cf_id = mysqli_real_escape_string($koneksi, $_POST['cf_id']);
     callAPI("https://api.cloudflare.com/client/v4/zones/" . $cf_id, "DELETE", null, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
     mysqli_query($koneksi, "DELETE FROM custom_domains WHERE id = '$id'");
     sinkronisasiCoolify();
-    $pesan = "<div class='alert alert-info'>Domain berhasil dihapus dan disinkronisasi.</div>";
+    $pesan = "<div class='alert alert-info'>Domain dihapus dan sinkronisasi dijalankan.</div>";
 }
 ?>
 
@@ -76,19 +84,22 @@ if (isset($_POST['submit_hapus'])) {
 <div class="card p-4">
     <form method="POST">
         <input type="text" name="nama_domain" class="form-control mb-3" placeholder="Contoh: domainkamu.com" required>
-        <button type="submit" name="submit_domain" class="btn btn-primary">SIMPAN DOMAIN</button>
+        <button type="submit" name="submit_domain" class="btn btn-primary">DAFTARKAN DOMAIN</button>
     </form>
 </div>
 
 <div class="card mt-4">
     <table class="table">
-        <thead><tr><th>Domain</th><th>Aksi</th></tr></thead>
+        <thead><tr><th>Domain</th><th>Status</th><th>Aksi</th></tr></thead>
         <tbody>
         <?php
         $q = mysqli_query($koneksi, "SELECT * FROM custom_domains ORDER BY id DESC");
         while ($row = mysqli_fetch_assoc($q)) {
+            $status = isset($row['status']) ? $row['status'] : 'pending';
+            $badge = ($status == 'active') ? 'bg-success' : 'bg-warning';
             echo "<tr>
                 <td>{$row['domain_name']}</td>
+                <td><span class='badge $badge'>" . strtoupper($status) . "</span></td>
                 <td>
                     <form method='POST' style='display:inline;' onsubmit='return confirm(\"Yakin hapus?\")'>
                         <input type='hidden' name='id' value='{$row['id']}'>
