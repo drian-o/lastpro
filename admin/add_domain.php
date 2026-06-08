@@ -3,14 +3,11 @@
 ob_start();
 if (session_status() == PHP_SESSION_NONE) session_start();
 
-ini_set('display_errors', 0);
-error_reporting(0);
-
 if (!isset($_SESSION['kode_admin'])) { exit('Akses ditolak.'); }
 
 require_once dirname(__DIR__) . '/koneksi.php';
 
-// KONFIGURASI - GANTI DENGAN YANG BARU
+// KONFIGURASI
 $cf_email = 'adrnsyah' . '18' . '@' . 'gmail.com';
 $auth_p1    = 'cfk_';
 $auth_p2    = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
@@ -22,7 +19,7 @@ function callAPI($url, $method = 'GET', $data = null, $headers = []) {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 20,
+        CURLOPT_TIMEOUT => 30,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_POSTFIELDS => $data ? json_encode($data) : null,
         CURLOPT_HTTPHEADER => array_merge(['Content-Type: application/json'], $headers)
@@ -45,7 +42,8 @@ function sinkronisasiCoolify() {
     callAPI("http://167.71.163.131:8000/api/v1/applications/$app_uuid/deploy", "POST", null, $headers);
 }
 
-// PROSES TAMBAH
+// PROSES TAMBAH & HAPUS
+$pesan = "";
 if (isset($_POST['submit_domain'])) {
     $domain = strtolower(trim($_POST['nama_domain']));
     $hasil = callAPI("https://api.cloudflare.com/client/v4/zones", "POST", ["name" => $domain, "jump_start" => true], ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
@@ -56,28 +54,24 @@ if (isset($_POST['submit_domain'])) {
         callAPI("https://api.cloudflare.com/client/v4/zones/$zid/dns_records", "POST", ["type"=>"A", "name"=>"@", "content"=>"167.71.163.131", "proxied"=>true], ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
         mysqli_query($koneksi, "INSERT INTO custom_domains (domain_name, cloudflare_id, status, user_id) VALUES ('$domain', '$zid', 'active', '0')");
         sinkronisasiCoolify();
-        $_SESSION['pesan'] = "<div class='alert alert-success'><strong>🎉 Berhasil!</strong><br>Setting ke Namecheap:<br><code>{$ns[0]}</code><br><code>{$ns[1]}</code></div>";
+        $pesan = "<div class='alert alert-success'><strong>🎉 Berhasil!</strong><br>Setting ke Namecheap:<br><code>{$ns[0]}</code><br><code>{$ns[1]}</code></div>";
     } else {
-        $_SESSION['pesan'] = "<div class='alert alert-danger'>Gagal: " . ($hasil['errors'][0]['message'] ?? 'Error Cloudflare') . "</div>";
+        $pesan = "<div class='alert alert-danger'>Gagal: " . ($hasil['errors'][0]['message'] ?? 'Error Cloudflare') . "</div>";
     }
-    if (ob_get_length()) ob_end_clean();
-    header("Location: " . $_SERVER['REQUEST_URI']); exit;
 }
 
-// PROSES HAPUS
 if (isset($_POST['submit_hapus'])) {
     $id = mysqli_real_escape_string($koneksi, $_POST['id']);
     $cf_id = mysqli_real_escape_string($koneksi, $_POST['cf_id']);
     callAPI("https://api.cloudflare.com/client/v4/zones/" . $cf_id, "DELETE", null, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
     mysqli_query($koneksi, "DELETE FROM custom_domains WHERE id = '$id'");
     sinkronisasiCoolify();
-    if (ob_get_length()) ob_end_clean();
-    header("Location: " . $_SERVER['REQUEST_URI']); exit;
+    $pesan = "<div class='alert alert-info'>Domain berhasil dihapus dan disinkronisasi.</div>";
 }
 ?>
 
 <h4 class="fw-bold py-3">Manajemen Domain</h4>
-<?php if(isset($_SESSION['pesan'])) { echo $_SESSION['pesan']; unset($_SESSION['pesan']); } ?>
+<?php echo $pesan; ?>
 
 <div class="card p-4">
     <form method="POST">
