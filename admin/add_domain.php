@@ -1,12 +1,13 @@
 <?php
 // zuzulo/tambah_domain.php
 if (session_status() == PHP_SESSION_NONE) session_start();
-// Aktifkan ini untuk melihat error jika terjadi layar hitam/blank
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 if (!isset($_SESSION['kode_admin'])) { exit('Akses ditolak.'); }
-require_once 'koneksi.php'; // Pastikan path benar
+
+// PERBAIKAN PATH: Menggunakan dirname(__DIR__) agar selalu menemukan koneksi.php
+require_once dirname(__DIR__) . '/koneksi.php';
 
 // KONFIGURASI
 $cf_email = 'adrnsyah' . '18' . '@' . 'gmail.com';
@@ -91,7 +92,6 @@ if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus') {
         <?php
         $q = mysqli_query($koneksi, "SELECT * FROM custom_domains ORDER BY id DESC");
         while ($row = mysqli_fetch_assoc($q)) {
-            // STATUS DIAMBIL DARI DB (Sudah diupdate cron_sync), TIDAK LAGI MENGGUNAAN API DI SINI
             $badge = ($row['status'] == 'active') ? 'bg-label-success' : 'bg-label-warning';
             echo "<tr>
                 <td>{$row['domain_name']}</td>
