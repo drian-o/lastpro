@@ -1,20 +1,19 @@
 <?php
-//CleanCode Drian
+// zuzulo/tambah_domain.php
 if (session_status() == PHP_SESSION_NONE) session_start();
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+
+// Matikan error reporting agar header redirect tidak bentrok
+ini_set('display_errors', 0);
+error_reporting(0);
 
 if (!isset($_SESSION['kode_admin'])) { exit('Akses ditolak.'); }
 
-// PERBAIKAN PATH: Menggunakan dirname(__DIR__) agar selalu menemukan koneksi.php
 require_once dirname(__DIR__) . '/koneksi.php';
 
-// KONFIGURASI
 $cf_email = 'adrnsyah' . '18' . '@' . 'gmail.com';
 $auth_p1    = 'cfk_';
 $auth_p2    = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
 $cf_key     = $auth_p1 . $auth_p2;
-
 $api_coolify = "1|oKcpXvShtMkxgo19ftMWq5TISsBin4CaC5Ozh10jca69c54f";
 $app_uuid = "hii3cbzqugws8nhg7zvaba1a";
 
@@ -37,7 +36,6 @@ function sinkronisasiCoolify() {
     $query = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains");
     $list = ["https://exampleproject.my.id"];
     while ($row = mysqli_fetch_array($query)) { $list[] = "https://" . $row['domain_name']; }
-    
     $headers = ['Authorization: Bearer ' . $api_coolify];
     callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid", "PATCH", ["fqdn" => implode(",", $list)], $headers);
     callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid/restart", "POST", null, $headers);
@@ -51,13 +49,9 @@ if (isset($_POST['submit_domain'])) {
     if (isset($hasil['success']) && $hasil['success']) {
         $zid = $hasil['result']['id'];
         $ns = $hasil['result']['name_servers'];
-        
         callAPI("https://api.cloudflare.com/client/v4/zones/$zid/dns_records", "POST", ["type"=>"A", "name"=>"@", "content"=>"137.184.155.151", "proxied"=>true], ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
-        
-        // REVISI: Menambahkan user_id agar tidak error database
         mysqli_query($koneksi, "INSERT INTO custom_domains (domain_name, cloudflare_id, status, user_id) VALUES ('$domain', '$zid', 'pending', '0')");
         sinkronisasiCoolify();
-        
         $_SESSION['pesan'] = "<div class='alert alert-success'><strong>🎉 Berhasil!</strong><br>NS: <code>{$ns[0]}</code> & <code>{$ns[1]}</code></div>";
     } else {
         $_SESSION['pesan'] = "<div class='alert alert-danger'>Gagal: " . ($hasil['errors'][0]['message'] ?? 'Error Cloudflare') . "</div>";
