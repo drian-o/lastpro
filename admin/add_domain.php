@@ -1,15 +1,17 @@
 <?php
-// zuzulo/tambah_domain.php
+// drianproject
 if (session_status() == PHP_SESSION_NONE) session_start();
 
-// Matikan error reporting agar header redirect tidak bentrok
+// Matikan error agar tidak bentrok dengan redirect header
 ini_set('display_errors', 0);
 error_reporting(0);
 
 if (!isset($_SESSION['kode_admin'])) { exit('Akses ditolak.'); }
 
+// Path fix agar selalu menemukan koneksi.php
 require_once dirname(__DIR__) . '/koneksi.php';
 
+// KONFIGURASI
 $cf_email = 'adrnsyah' . '18' . '@' . 'gmail.com';
 $auth_p1    = 'cfk_';
 $auth_p2    = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
@@ -21,7 +23,7 @@ function callAPI($url, $method = 'GET', $data = null, $headers = []) {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 10,
+        CURLOPT_TIMEOUT => 15,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_POSTFIELDS => $data ? json_encode($data) : null,
         CURLOPT_HTTPHEADER => array_merge(['Content-Type: application/json'], $headers)
@@ -34,10 +36,15 @@ function callAPI($url, $method = 'GET', $data = null, $headers = []) {
 function sinkronisasiCoolify() {
     global $koneksi, $api_coolify, $app_uuid;
     $query = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains");
-    $list = ["https://exampleproject.my.id"];
-    while ($row = mysqli_fetch_array($query)) { $list[] = "https://" . $row['domain_name']; }
-    $headers = ['Authorization: Bearer ' . $api_coolify];
-    callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid", "PATCH", ["fqdn" => implode(",", $list)], $headers);
+    $domains = [];
+    while ($row = mysqli_fetch_array($query)) { $domains[] = $row['domain_name']; }
+    
+    $headers = ['Authorization: Bearer ' . $api_coolify, 'Content-Type: application/json'];
+    $payload = ["fqdn" => implode(",", $domains)];
+    
+    // PATCH domain ke Coolify
+    callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid", "PATCH", $payload, $headers);
+    // Restart agar aktif
     callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid/restart", "POST", null, $headers);
 }
 
