@@ -2,13 +2,11 @@
 // drianproject
 if (session_status() == PHP_SESSION_NONE) session_start();
 
-// Matikan error agar tidak bentrok dengan redirect header
 ini_set('display_errors', 0);
 error_reporting(0);
 
 if (!isset($_SESSION['kode_admin'])) { exit('Akses ditolak.'); }
 
-// Path fix agar selalu menemukan koneksi.php
 require_once dirname(__DIR__) . '/koneksi.php';
 
 // KONFIGURASI
@@ -42,9 +40,7 @@ function sinkronisasiCoolify() {
     $headers = ['Authorization: Bearer ' . $api_coolify, 'Content-Type: application/json'];
     $payload = ["fqdn" => implode(",", $domains)];
     
-    // PATCH domain ke Coolify
     callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid", "PATCH", $payload, $headers);
-    // Restart agar aktif
     callAPI("http://137.184.155.151:8000/api/v1/applications/$app_uuid/restart", "POST", null, $headers);
 }
 
@@ -66,10 +62,10 @@ if (isset($_POST['submit_domain'])) {
     header("Location: ?halaman=tambah_domain"); exit;
 }
 
-// PROSES HAPUS
-if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus') {
-    $id = mysqli_real_escape_string($koneksi, $_GET['id']);
-    $cf_id = mysqli_real_escape_string($koneksi, $_GET['cf_id']);
+// PROSES HAPUS (MENGGUNAKAN POST AGAR LEBIH STABIL)
+if (isset($_POST['submit_hapus'])) {
+    $id = mysqli_real_escape_string($koneksi, $_POST['id']);
+    $cf_id = mysqli_real_escape_string($koneksi, $_POST['cf_id']);
     callAPI("https://api.cloudflare.com/client/v4/zones/" . $cf_id, "DELETE", null, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key]);
     mysqli_query($koneksi, "DELETE FROM custom_domains WHERE id = '$id'");
     sinkronisasiCoolify();
@@ -98,7 +94,13 @@ if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus') {
             echo "<tr>
                 <td>{$row['domain_name']}</td>
                 <td><span class='badge {$badge}'>".strtoupper($row['status'])."</span></td>
-                <td><a href='?halaman=tambah_domain&aksi=hapus&id={$row['id']}&cf_id={$row['cloudflare_id']}' class='btn btn-danger btn-sm' onclick='return confirm(\"Yakin hapus?\")'>Hapus</a></td>
+                <td>
+                    <form method='POST' onsubmit='return confirm(\"Yakin hapus?\")'>
+                        <input type='hidden' name='id' value='{$row['id']}'>
+                        <input type='hidden' name='cf_id' value='{$row['cloudflare_id']}'>
+                        <button type='submit' name='submit_hapus' class='btn btn-danger btn-sm'>Hapus</button>
+                    </form>
+                </td>
             </tr>";
         }
         ?>
