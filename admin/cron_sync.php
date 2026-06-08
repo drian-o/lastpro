@@ -1,6 +1,6 @@
 <?php
 // cron_sync.php
-require_once 'koneksi.php';
+require_once __DIR__ . '/../koneksi.php';
 
 // Disamarkan agar tidak terdeteksi Secret Scanning GitHub
 $auth_email = 'adrnsyah' . '18' . '@' . 'gmail.com';
