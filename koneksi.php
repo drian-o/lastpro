@@ -5,17 +5,67 @@
 	ini_set('display_errors', 0);
 	
 	date_default_timezone_set("Asia/Jakarta");
-	$host = "167.71.163.131";
-	$username = "mysql";
-	$password = 'UMGunsTrHAsjjOxaFiO8f0xoRzyA2qFCx7XxJlEs6kIsISSGNPINa6r8B2vSfVHY';
-	$database = "default";
-	$koneksi = mysqli_connect($host, $username, $password, $database);
-	if ($koneksi) {
-		include_once 'fungsi_umum.php';
-		$alamat_website = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/';
-		$alamat_admin = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/admin/';
-		$alamat_staff = 'http://hii3cbzqugws8nhg7zvaba1a.167.71.163.131.sslip.io/staff/';
-		
+
+$host = "167.71.163.131";
+$username = "mysql";
+$password = 'UMGunsTrHAsjjOxaFiO8f0xoRzyA2qFCx7XxJlEs6kIsISSGNPINa6r8B2vSfVHY';
+$database = "default";
+
+$koneksi = mysqli_connect($host, $username, $password, $database);
+
+// Masukkan email akun Cloudflare Anda di sini
+define('CF_EMAIL', getenv('CF_EMAIL')); 
+define('CF_GLOBAL_KEY', getenv('CF_GLOBAL_KEY'));
+define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
+
+// ========================================================
+// FUNGSI SAKTI ADD DOMAIN KE CLOUDFLARE VIA PHP NATIVE (cURL)
+// ========================================================
+function tambahDomainKeCloudflare($domainBaru) {
+    $data = [
+        "hostname" => $domainBaru,
+        "ssl" => [
+            "method" => "http",
+            "type" => "dv"
+        ]
+    ];
+
+    $ch = curl_init("https://api.cloudflare.com/client/v4/zones/" . CF_ZONE_ID . "/custom_hostnames");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'X-Auth-Email: ' . CF_EMAIL,
+        'X-Auth-Key: ' . CF_GLOBAL_KEY,
+        'Content-Type: application/json'
+    ]);
+
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        return ['success' => false, 'error' => 'cURL Error: ' . $err];
+    } else {
+        return json_decode($response, true);
+    }
+}
+// ========================================================
+
+if ($koneksi) {
+    // FIX: Ditambahkan titik (.) dan slash (/) agar tidak syntax error
+    include_once __DIR__ . '/fungsi_umum.php'; 
+    
+    // ========================================================
+    // LOGIK SAKTI ANTI-NAWALA (OTOMATIS DETEKSI DOMAIN AKTIF)
+    // ========================================================
+    $protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+    $current_domain = $protocol . $_SERVER['HTTP_HOST'];
+
+    $alamat_website = $current_domain . '/';
+    $alamat_admin   = $current_domain . '/admin/';
+    $alamat_staff   = $current_domain . '/staff/';
+	
 		// Judul Web
 		$judul_web = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan = 'judul_web'");
 		$data_judul_web = mysqli_fetch_array($judul_web);
