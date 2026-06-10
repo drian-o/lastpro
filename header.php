@@ -33,18 +33,6 @@ $colors = [];
 while ($row = mysqli_fetch_array($theme_color_query)) {
 	$colors[$row['nama_pengaturan']] = $row['isi_1_pengaturan'];
 }
-$query_seo = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan IN ('google_verif', 'amp_url', 'redirect_domain')");
-$seo = [];
-while ($row = mysqli_fetch_assoc($query_seo)) {
-    $seo[$row['nama_pengaturan']] = $row;
-}
-
-// LOGIKA REDIRECT (Paling atas)
-// Cek jika status redirect (isi_2_pengaturan) adalah 1 dan link tujuan tidak kosong
-if (isset($seo['redirect_domain']) && $seo['redirect_domain']['isi_2_pengaturan'] == 1 && !empty($seo['redirect_domain']['isi_1_pengaturan'])) {
-    header("Location: " . $seo['redirect_domain']['isi_1_pengaturan'], true, 301);
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -64,12 +52,8 @@ if (isset($seo['redirect_domain']) && $seo['redirect_domain']['isi_2_pengaturan'
 	<meta name="description" content="<?php echo $isi_1_deskripsi_web; ?>">
 	<meta name="application-name" content="<?php echo $isi_1_judul_web; ?>" />
 	<link rel="author" href="" />
-	<?php echo isset($seo['google_verif']) ? $seo['google_verif']['isi_1_pengaturan'] : ''; ?>
-    <?php if (!empty($seo['amp_url']['isi_1_pengaturan'])): ?>
-    <link rel="amphtml" href="<?php echo $seo['amp_url']['isi_1_pengaturan']; ?>">
 	<meta name="author" content="<?php echo $isi_1_judul_web; ?>" />
 	<meta name="generator" content="<?php echo $alamat_website; ?>" />
-	<link rel="canonical" href="<?php echo $alamat_website; ?>">
 	<meta name="keywords" content="<?php echo $isi_1_judul_web; ?> 88,<?php echo $isi_1_judul_web; ?>" />
 	<meta name="referrer" content="origin-when-cross-origin" />
 	<meta name="color-scheme" content="dark" />
@@ -85,9 +69,9 @@ if (isset($seo['redirect_domain']) && $seo['redirect_domain']['isi_2_pengaturan'
 	<meta name="copyright" content="<?php echo $isi_1_judul_web; ?>" />
 	<meta name="categories" content="website" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-title" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta name="apple-mobile-web-app-title" content="<?php echo $isi_1_judul_web; ?> | Cepat Dan Pasti" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-	<meta property="og:title" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta property="og:title" content="<?php echo $isi_1_judul_web; ?> | Cepat Dan Pasti" />
 	<meta property="og:description" content="<?php echo $isi_1_judul_web; ?>: Mengedepankan keinginan pemain untuk dapat kesuksesan yang nyata dan cepat." />
 	<meta property="og:site_name" content="<?php echo $isi_1_judul_web; ?>" />
 	<meta property="og:image:width" content="800" />
