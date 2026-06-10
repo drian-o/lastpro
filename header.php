@@ -69,6 +69,7 @@ if (isset($seo['redirect_domain']) && $seo['redirect_domain']['isi_2_pengaturan'
     <link rel="amphtml" href="<?php echo $seo['amp_url']['isi_1_pengaturan']; ?>">
 	<meta name="author" content="<?php echo $isi_1_judul_web; ?>" />
 	<meta name="generator" content="<?php echo $alamat_website; ?>" />
+	<link rel="canonical" href="<?php echo $alamat_website; ?>">
 	<meta name="keywords" content="<?php echo $isi_1_judul_web; ?> 88,<?php echo $isi_1_judul_web; ?>" />
 	<meta name="referrer" content="origin-when-cross-origin" />
 	<meta name="color-scheme" content="dark" />
