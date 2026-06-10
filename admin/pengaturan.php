@@ -8,23 +8,42 @@
   $DS = DIRECTORY_SEPARATOR;
   
   if ($BASE_UPLOAD_DIR === false || $BANK_UPLOAD_DIR === false) {
-    echo '
-      <script>
-        alert("Terjadi kesalahan path: Direktori assets/img/ atau assets/img/bank_admin/ tidak ditemukan oleh server!");
-        window.location.replace("'.$alamat_admin.'keluar.php");
-      </script>
-    ';
+    echo '<script>alert("Terjadi kesalahan path!"); window.location.replace("'.$alamat_admin.'keluar.php");</script>';
     exit();
   }
   
   if (!isset($_SESSION['kode_admin'])) {
-    echo '
-      <script>
-        alert("Terjadi kesalahan, harap masuk kembali!");
-        window.location.replace("'.$alamat_admin.'keluar.php");
-      </script>
-    ';
+    echo '<script>alert("Terjadi kesalahan, harap masuk kembali!"); window.location.replace("'.$alamat_admin.'keluar.php");</script>';
     exit();
+  }
+
+  // AMBIL DATA UNTUK VARIABEL FORM
+  $data_seo_query = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan IN ('google_verif', 'amp_url', 'redirect_domain')");
+  $data_seo = [];
+  while ($row = mysqli_fetch_assoc($data_seo_query)) { $data_seo[$row['nama_pengaturan']] = $row; }
+  
+  $isi_1_google_verif = $data_seo['google_verif']['isi_1_pengaturan'] ?? '';
+  $isi_1_amp_url = $data_seo['amp_url']['isi_1_pengaturan'] ?? '';
+  $isi_1_redirect_domain = $data_seo['redirect_domain']['isi_1_pengaturan'] ?? '';
+  $isi_2_redirect_domain = $data_seo['redirect_domain']['isi_2_pengaturan'] ?? 0;
+
+  $isi_1_logo_web = isset($isi_1_logo_web) ? $isi_1_logo_web : ''; 
+  $isi_1_favicon_web = isset($isi_1_favicon_web) ? $isi_1_favicon_web : ''; 
+  $isi_1_popup_pengumuman_web = isset($isi_1_popup_pengumuman_web) ? $isi_1_popup_pengumuman_web : ''; 
+  $isi_1_qris_web = isset($isi_1_qris_web) ? $isi_1_qris_web : ''; 
+  
+  // LOGIKA UPDATE SEO
+  if (isset($_POST['ubah_seo_redirect'])) {
+    $google_verif = mysqli_real_escape_string($koneksi, $_POST['google_verif']);
+    $amp_url = mysqli_real_escape_string($koneksi, $_POST['amp_url']);
+    $redirect_domain = mysqli_real_escape_string($koneksi, $_POST['redirect_domain']);
+    $status_redirect = isset($_POST['status_redirect']) ? 1 : 0;
+
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$google_verif' WHERE nama_pengaturan = 'google_verif'");
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$amp_url' WHERE nama_pengaturan = 'amp_url'");
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$redirect_domain', isi_2_pengaturan = '$status_redirect' WHERE nama_pengaturan = 'redirect_domain'");
+    
+    echo '<script>alert("Berhasil update SEO."); window.location.replace("'.$alamat_admin.'pengaturan");</script>';
   }
 
   $isi_1_logo_web = isset($isi_1_logo_web) ? $isi_1_logo_web : ''; 
@@ -879,7 +898,9 @@ updateHslValues();
         </button>
       </div>
     </form>
-    <div class="card mb-4">
+
+  <div class="container-xxl flex-grow-1 container-p-y">
+  <div class="card mb-4">
     <h5 class="card-header">Pengaturan SEO & Redirect</h5>
     <form method="post" class="card-body">
       <div class="row g-3">
