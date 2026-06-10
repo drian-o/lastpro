@@ -5,9 +5,9 @@ ini_set('error_log', 'error.log');
 ini_set('display_errors', 0);
 date_default_timezone_set("Asia/Jakarta");
 
-$host = "167.71.163.131";
+$host = "3.80.188.99";
 $username = "mysql";
-$password = 'UMGunsTrHAsjjOxaFiO8f0xoRzyA2qFCx7XxJlEs6kIsISSGNPINa6r8B2vSfVHY';
+$password = 'QM829v1W3EkCBcwXeZwIXORH1YeLqXTyTyrml69yL5uszLol59MCrIX6RB0vcs72';
 $database = "default";
 
 $koneksi = mysqli_connect($host, $username, $password, $database);
