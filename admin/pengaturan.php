@@ -32,6 +32,21 @@
   $isi_1_popup_pengumuman_web = isset($isi_1_popup_pengumuman_web) ? $isi_1_popup_pengumuman_web : ''; 
   $isi_1_qris_web = isset($isi_1_qris_web) ? $isi_1_qris_web : ''; 
   
+  // LOGIKA UPDATE SEO & REDIRECT
+  if (isset($_POST['ubah_seo_redirect'])) {
+    $google_verif = mysqli_real_escape_string($koneksi, $_POST['google_verif']);
+    $amp_url = mysqli_real_escape_string($koneksi, $_POST['amp_url']);
+    $redirect_domain = mysqli_real_escape_string($koneksi, $_POST['redirect_domain']);
+    $status_redirect = isset($_POST['status_redirect']) ? 1 : 0;
+
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$google_verif' WHERE nama_pengaturan = 'google_verif'");
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$amp_url' WHERE nama_pengaturan = 'amp_url'");
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$redirect_domain', isi_2_pengaturan = '$status_redirect' WHERE nama_pengaturan = 'redirect_domain'");
+    
+    echo '<script>alert("Berhasil simpan pengaturan SEO."); window.location.replace("'.$alamat_admin.'pengaturan");</script>';
+  }
+
+  // LOGIKA UPDATE LAINNYA
   if (isset($_POST['ubah_judul_deskripsi_kata_kunci'])) {
     $judul_web = $_POST['judul_web'];
     $deskripsi_web = $_POST['deskripsi_web'];
@@ -157,9 +172,7 @@
     } else {
       echo "Proses Gagal<br>Error : ".$perbarui."<br>".mysqli_error($koneksi);
     }
-  } 
-
-  else if (isset($_POST['ubah_logo'])) {
+  } else if (isset($_POST['ubah_logo'])) {
     $random = rand(1000000000, 9999999999);
     $tmp_file = $_FILES['logo_web']['tmp_name'];
     $nama_file = $_FILES['logo_web']['name'];
@@ -227,9 +240,7 @@
         }
     }
     exit();
-  } 
-
-  else if (isset($_POST['ubah_favicon'])) {
+  } else if (isset($_POST['ubah_favicon'])) {
     $random = rand(1000000000, 9999999999);
     $tmp_file = $_FILES['favicon_web']['tmp_name'];
     $nama_file = $_FILES['favicon_web']['name'];
@@ -297,9 +308,7 @@
         }
     }
     exit();
-  } 
-  
-  else if (isset($_POST['ubah_sosial_media'])) {
+  } else if (isset($_POST['ubah_sosial_media'])) {
     $link_apk_web = $_POST['link_apk_web'];
     $facebook_web = $_POST['facebook_web'];
     $telegram_web = $_POST['telegram_web'];
@@ -363,9 +372,7 @@
     } else {
       echo "Proses Gagal<br>Error : ".$perbarui_1."<br>".mysqli_error($koneksi);
     }
-  } 
-
-  else if (isset($_POST['ubah_popup_pengumuman'])) {
+  } else if (isset($_POST['ubah_popup_pengumuman'])) {
     $popup_pengumuman_web_2 = mysqli_real_escape_string($koneksi, $_POST['popup_pengumuman_web_2']);
     $random = rand(1000000000, 9999999999);
     $tmp_file = $_FILES['popup_pengumuman_web']['tmp_name'];
@@ -437,9 +444,7 @@
         echo "Proses Gagal<br>Error : ".mysqli_error($koneksi);
     }
     exit();
-  } 
-  
-  else if (isset($_POST['ubah_rtp'])) {
+  } else if (isset($_POST['ubah_rtp'])) {
     $rtp_web = $_POST['rtp_web'];
     $rtp_web_2 = $_POST['rtp_web_2'];
     $perbarui_1 = mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$rtp_web', isi_2_pengaturan = '$rtp_web_2' WHERE nama_pengaturan = 'rtp_web'");
@@ -490,9 +495,7 @@
     } else {
       echo "Proses Gagal<br>Error : ".$perbarui_1."<br>".mysqli_error($koneksi);
     }
-  } 
-
-  else if (isset($_POST['ubah_qris'])) {
+  } else if (isset($_POST['ubah_qris'])) {
     $random = rand(1000000000, 9999999999);
     $tmp_file = $_FILES['qris_web']['tmp_name'];
     $nama_file = $_FILES['qris_web']['name'];
@@ -563,306 +566,37 @@
   }
 ?>
 <div class="container-xxl flex-grow-1 container-p-y">
-  <div class="row gy-4 mb-4">
-    <div class="col-md-6">
-      <div class="fw-bold fs-4 text-center text-md-start">Pengaturan</div>
-    </div>
-    <div class="col-md-6">
-      <div class="text-center text-md-end">
-        <span><?php echo ucapan().', '.tanggalIndonesia(date('Y-m-d'), true).', '; ?></span>
-        <span id="jam_sekarang">Jam </span>
+  <form method="post" class="card-body">
+    <hr class="my-4 mx-n4">
+    <h6>Pengaturan SEO & Redirect</h6>
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="form-floating form-floating-outline">
+          <textarea name="google_verif" class="form-control"><?php echo $isi_1_google_verif; ?></textarea>
+          <label>Google Verification Meta Tag</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-floating form-floating-outline">
+          <input type="text" name="amp_url" class="form-control" value="<?php echo $isi_1_amp_url; ?>">
+          <label>AMP URL</label>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-floating form-floating-outline">
+          <input type="text" name="redirect_domain" class="form-control" value="<?php echo $isi_1_redirect_domain; ?>">
+          <label>Target Redirect Domain</label>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="status_redirect" id="status_redirect" <?php echo ($isi_2_redirect_domain == 1) ? 'checked' : ''; ?>>
+          <label class="form-check-label" for="status_redirect">Aktifkan Redirect (301 Permanent)</label>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="card mb-4">
-    <h5 class="card-header">Ubah Data Pengaturan</h5>
-    <form method="post" class="card-body">
-      <h6> Judul - Deskripsi - Kata Kunci</h6>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="judul_web" class="form-control" value="<?php echo $isi_1_judul_web; ?>" required>
-            <label>Judul</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="deskripsi_web" class="form-control" value="<?php echo $isi_1_deskripsi_web; ?>" required>
-            <label>Deskripsi</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="kata_kunci_web" class="form-control" value="<?php echo $isi_1_kata_kunci_web; ?>" required>
-            <label>Kata Kunci</label>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_judul_deskripsi_kata_kunci" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-    <form method="post" class="card-body">
-      <hr class="my-4 mx-n4">
-      <h6> Warna Tema</h6>
-        <div class="col-12">
-          <div class="mb-3">
-          <div class="form-floating form-floating-outline mb-4">
-            <input type="color" id="bg_1_web" name="bg_1_web" class="form-control" value="<?php echo $isi_1_bg_1_web; ?>">
-            <input type="hidden" id="bg_1_web_hsl" name="bg_1_web_hsl">
-            <label for="bg_1_web">Background 1</label>
-          </div>
-        </div>
-       <div class="pt-4 text-end">
-        <button type="submit" name="ubah_warna_tema" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-
-<script>
-function rgbToHsl(r, g, b) {
-    r /= 255;
-    g /= 255;
-    b /= 255;
-    let max = Math.max(r, g, b);
-    let min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
-
-    if (max === min) {
-        h = s = 0;
-    } else {
-        let d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch (max) {
-            case r:
-                h = (g - b) / d + (g < b ? 6 : 0);
-                break;
-            case g:
-                h = (b - r) / d + 2;
-                break;
-            case b:
-                h = (r - g) / d + 4;
-                break;
-        }
-        h /= 6;
-    }
-
-    return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
-}
-
-function updateHslValues() {
-    const colorInputs = document.querySelectorAll('input[type="color"]');
-    colorInputs.forEach(input => {
-        const hex = input.value;
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        const hsl = rgbToHsl(r, g, b);
-        document.getElementById(`${input.id}_hsl`).value = hsl;
-    });
-}
-
-document.querySelectorAll('input[type="color"]').forEach(input => {
-    input.addEventListener('input', updateHslValues);
-});
-
-updateHslValues();
-</script>
-
-    <form method="post" enctype="multipart/form-data" class="card-body">
-      <hr class="my-4 mx-n4">
-      <h6> Logo</h6>
-      <div class="row g-3">
-        <div class="col-12">
-          <div class="mb-3">
-            <div class="bg-secondary rounded text-center p-3 mb-3">
-              <img src="<?php echo '../assets/img/'.$isi_1_logo_web; ?>" alt="<?php echo $jenis_promosi; ?>" class="img-fluid">
-            </div>
-            <input type="file" name="logo_web" class="form-control" id="formFile">
-            <div class="form-text">
-              Format gambar harus PNG, JPG, JPEG, GIF, atau SVG.
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_logo" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-    <form method="post" enctype="multipart/form-data" class="card-body">
-      <hr class="my-4 mx-n4">
-      <h6> Favicon</h6>
-      <div class="row g-3">
-        <div class="col-12">
-          <div class="mb-3">
-            <div class="bg-secondary rounded text-center p-3 mb-3">
-              <img src="<?php echo '../assets/img/'.$isi_1_favicon_web; ?>" alt="<?php echo $jenis_promosi; ?>" class="img-fluid">
-            </div>
-            <input type="file" name="favicon_web" class="form-control" id="formFile">
-            <div class="form-text">
-              Format gambar harus PNG, JPG, JPEG, GIF, atau SVG.
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_favicon" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-   <form method="post" class="card-body">
-      <h6> WhatsApp - LiveChat</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="whatsapp_web" class="form-control" value="<?php echo $isi_1_whatsapp_web; ?>" required>
-            <label>WhatsApp</label>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="link_livechat_web" class="form-control" value="<?php echo $isi_1_link_livechat_web; ?>" required>
-            <label>Link LiveChat</label>
-          </div>
-        </div>
-        <div class="col-12">
-          <div class="form-floating form-floating-outline mb-4">
-            <textarea name="script_livechat_web" class="form-control h-px-100"><?php echo $isi_1_script_livechat_web; ?></textarea>
-            <label for="exampleFormControlTextarea1">Script LiveChat</label>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_whatsapp_livechat" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-    <form method="post" class="card-body">
-      <h6> Teks Berjalan</h6>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="teks_berjalan_web" class="form-control" value="<?php echo $isi_1_teks_berjalan_web; ?>" required>
-            <label>Teks 1</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="teks_berjalan_web_2" class="form-control" value="<?php echo $isi_2_teks_berjalan_web; ?>" required>
-            <label>Teks 2</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="teks_berjalan_web_3" class="form-control" value="<?php echo $isi_3_teks_berjalan_web; ?>" required>
-            <label>Teks 3</label>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_teks_berjalan" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-    <form method="post" enctype="multipart/form-data" class="card-body">
-      <hr class="my-4 mx-n4">
-      <h6> Popup Pengumuman</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <div class="bg-secondary rounded text-center p-3 mb-3">
-              <img src="<?php echo '../assets/img/'.$isi_1_popup_pengumuman_web; ?>" alt="<?php echo $jenis_promosi; ?>" class="img-fluid">
-            </div>
-            <input type="file" name="popup_pengumuman_web" class="form-control" id="formFile">
-            <div class="form-text">
-              Format gambar harus PNG, JPG, JPEG, GIF, atau SVG.
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_pengumuman_web_2" class="form-control" value="<?php echo $isi_2_popup_pengumuman_web; ?>" required>
-            <label>Teks Popup Pengumuman</label>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_popup_pengumuman" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-    <form method="post" class="card-body">
-      <h6> RTP</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="rtp_web" class="form-control" value="<?php echo $isi_1_rtp_web; ?>" required>
-            <label>Angka Awal (Minimal : 0)</label>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="rtp_web_2" class="form-control" value="<?php echo $isi_2_rtp_web; ?>" required>
-            <label>Angka Akhir (Maksimal : 100)</label>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_rtp" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
-    <form method="post" class="card-body">
-      <h6> Popup Teks</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_belum_login_web" class="form-control" value="<?php echo $isi_1_popup_teks_belum_login_web; ?>" required>
-            <label>Popup Teks Belum Login</label>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_tidak_ada_saldo_web" class="form-control" value="<?php echo $isi_1_popup_teks_tidak_ada_saldo_web; ?>" required>
-            <label>Popup Teks Tidak Ada Saldo [ GAME ON/OFF]</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_ada_saldo_web" class="form-control" value="<?php echo $isi_1_popup_teks_ada_saldo_web; ?>" required>
-            <label>Popup Ada Saldo [ GAME LOCK ]</label>
-          </div>
-        </div>
-       <div class="col-md-4">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_setelah_withdraw_web" class="form-control" value="<?php echo $isi_1_popup_teks_setelah_withdraw_web; ?>" required>
-            <label>Popup Teks Error [ GAME LOCK ]</label>
-          </div>
-        </div>
-      </div>
-      <div class="pt-4 text-end">
-        <button type="submit" name="ubah_popup_teks" class="btn btn-primary waves-effect waves-light">
-          <span class="tf-icons mdi mdi-content-save me-1"></span>
-          Simpan
-        </button>
-      </div>
-    </form>
+    <div class="pt-4 text-end">
+      <button type="submit" name="ubah_seo_redirect" class="btn btn-primary">Simpan SEO & Redirect</button>
+    </div>
+  </form>
+</div>
