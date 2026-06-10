@@ -1,6 +1,6 @@
 <?php
   error_reporting(E_ALL);
-  ini_set('display_errors', 0);
+  ini_set('display_errors', 1); // Dinyalain biar ketahuan kalau ada error
   include_once '../koneksi.php';
 
   $BASE_UPLOAD_DIR = realpath(__DIR__ . '/../assets/img/');
@@ -26,6 +26,20 @@
     ';
     exit();
   }
+
+  // AMBIL DATA SEO & REDIRECT (Sintaks Aman PHP 5.x)
+  $data_seo_query = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan IN ('google_verif', 'amp_url', 'redirect_domain')");
+  $data_seo = array();
+  if ($data_seo_query) {
+      while ($row = mysqli_fetch_assoc($data_seo_query)) { 
+          $data_seo[$row['nama_pengaturan']] = $row; 
+      }
+  }
+  
+  $isi_1_google_verif = isset($data_seo['google_verif']['isi_1_pengaturan']) ? $data_seo['google_verif']['isi_1_pengaturan'] : '';
+  $isi_1_amp_url = isset($data_seo['amp_url']['isi_1_pengaturan']) ? $data_seo['amp_url']['isi_1_pengaturan'] : '';
+  $isi_1_redirect_domain = isset($data_seo['redirect_domain']['isi_1_pengaturan']) ? $data_seo['redirect_domain']['isi_1_pengaturan'] : '';
+  $isi_2_redirect_domain = isset($data_seo['redirect_domain']['isi_2_pengaturan']) ? $data_seo['redirect_domain']['isi_2_pengaturan'] : 0;
 
   $isi_1_logo_web = isset($isi_1_logo_web) ? $isi_1_logo_web : ''; 
   $isi_1_favicon_web = isset($isi_1_favicon_web) ? $isi_1_favicon_web : ''; 
@@ -561,7 +575,23 @@
     }
     exit();
   }
+
+  // LOGIKA SEO DITAMBAHKAN DI SINI DENGAN AMAN
+  else if (isset($_POST['ubah_seo_redirect'])) {
+    $google_verif = mysqli_real_escape_string($koneksi, $_POST['google_verif']);
+    $amp_url = mysqli_real_escape_string($koneksi, $_POST['amp_url']);
+    $redirect_domain = mysqli_real_escape_string($koneksi, $_POST['redirect_domain']);
+    $status_redirect = isset($_POST['status_redirect']) ? 1 : 0;
+
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$google_verif' WHERE nama_pengaturan = 'google_verif'");
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$amp_url' WHERE nama_pengaturan = 'amp_url'");
+    mysqli_query($koneksi, "UPDATE pengaturan SET isi_1_pengaturan = '$redirect_domain', isi_2_pengaturan = '$status_redirect' WHERE nama_pengaturan = 'redirect_domain'");
+    
+    echo '<script>alert("Berhasil update SEO."); window.location.replace("'.$alamat_admin.'pengaturan");</script>';
+    exit();
+  }
 ?>
+
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="row gy-4 mb-4">
     <div class="col-md-6">
@@ -582,19 +612,19 @@
       <div class="row g-3">
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="judul_web" class="form-control" value="<?php echo $isi_1_judul_web; ?>" required>
+            <input type="text" name="judul_web" class="form-control" value="<?php echo htmlspecialchars($isi_1_judul_web ?? ''); ?>" required>
             <label>Judul</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="deskripsi_web" class="form-control" value="<?php echo $isi_1_deskripsi_web; ?>" required>
+            <input type="text" name="deskripsi_web" class="form-control" value="<?php echo htmlspecialchars($isi_1_deskripsi_web ?? ''); ?>" required>
             <label>Deskripsi</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="kata_kunci_web" class="form-control" value="<?php echo $isi_1_kata_kunci_web; ?>" required>
+            <input type="text" name="kata_kunci_web" class="form-control" value="<?php echo htmlspecialchars($isi_1_kata_kunci_web ?? ''); ?>" required>
             <label>Kata Kunci</label>
           </div>
         </div>
@@ -612,7 +642,7 @@
         <div class="col-12">
           <div class="mb-3">
           <div class="form-floating form-floating-outline mb-4">
-            <input type="color" id="bg_1_web" name="bg_1_web" class="form-control" value="<?php echo $isi_1_bg_1_web; ?>">
+            <input type="color" id="bg_1_web" name="bg_1_web" class="form-control" value="<?php echo $isi_1_bg_1_web ?? ''; ?>">
             <input type="hidden" id="bg_1_web_hsl" name="bg_1_web_hsl">
             <label for="bg_1_web">Background 1</label>
           </div>
@@ -682,7 +712,7 @@ updateHslValues();
         <div class="col-12">
           <div class="mb-3">
             <div class="bg-secondary rounded text-center p-3 mb-3">
-              <img src="<?php echo '../assets/img/'.$isi_1_logo_web; ?>" alt="<?php echo $jenis_promosi; ?>" class="img-fluid">
+              <img src="<?php echo '../assets/img/'.$isi_1_logo_web; ?>" alt="<?php echo isset($jenis_promosi) ? $jenis_promosi : ''; ?>" class="img-fluid">
             </div>
             <input type="file" name="logo_web" class="form-control" id="formFile">
             <div class="form-text">
@@ -705,7 +735,7 @@ updateHslValues();
         <div class="col-12">
           <div class="mb-3">
             <div class="bg-secondary rounded text-center p-3 mb-3">
-              <img src="<?php echo '../assets/img/'.$isi_1_favicon_web; ?>" alt="<?php echo $jenis_promosi; ?>" class="img-fluid">
+              <img src="<?php echo '../assets/img/'.$isi_1_favicon_web; ?>" alt="<?php echo isset($jenis_promosi) ? $jenis_promosi : ''; ?>" class="img-fluid">
             </div>
             <input type="file" name="favicon_web" class="form-control" id="formFile">
             <div class="form-text">
@@ -726,19 +756,19 @@ updateHslValues();
       <div class="row g-3">
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="whatsapp_web" class="form-control" value="<?php echo $isi_1_whatsapp_web; ?>" required>
+            <input type="text" name="whatsapp_web" class="form-control" value="<?php echo isset($isi_1_whatsapp_web) ? $isi_1_whatsapp_web : ''; ?>" required>
             <label>WhatsApp</label>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="link_livechat_web" class="form-control" value="<?php echo $isi_1_link_livechat_web; ?>" required>
+            <input type="text" name="link_livechat_web" class="form-control" value="<?php echo isset($isi_1_link_livechat_web) ? $isi_1_link_livechat_web : ''; ?>" required>
             <label>Link LiveChat</label>
           </div>
         </div>
         <div class="col-12">
           <div class="form-floating form-floating-outline mb-4">
-            <textarea name="script_livechat_web" class="form-control h-px-100"><?php echo $isi_1_script_livechat_web; ?></textarea>
+            <textarea name="script_livechat_web" class="form-control h-px-100"><?php echo isset($isi_1_script_livechat_web) ? $isi_1_script_livechat_web : ''; ?></textarea>
             <label for="exampleFormControlTextarea1">Script LiveChat</label>
           </div>
         </div>
@@ -755,19 +785,19 @@ updateHslValues();
       <div class="row g-3">
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="teks_berjalan_web" class="form-control" value="<?php echo $isi_1_teks_berjalan_web; ?>" required>
+            <input type="text" name="teks_berjalan_web" class="form-control" value="<?php echo isset($isi_1_teks_berjalan_web) ? $isi_1_teks_berjalan_web : ''; ?>" required>
             <label>Teks 1</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="teks_berjalan_web_2" class="form-control" value="<?php echo $isi_2_teks_berjalan_web; ?>" required>
+            <input type="text" name="teks_berjalan_web_2" class="form-control" value="<?php echo isset($isi_2_teks_berjalan_web) ? $isi_2_teks_berjalan_web : ''; ?>" required>
             <label>Teks 2</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="teks_berjalan_web_3" class="form-control" value="<?php echo $isi_3_teks_berjalan_web; ?>" required>
+            <input type="text" name="teks_berjalan_web_3" class="form-control" value="<?php echo isset($isi_3_teks_berjalan_web) ? $isi_3_teks_berjalan_web : ''; ?>" required>
             <label>Teks 3</label>
           </div>
         </div>
@@ -786,7 +816,7 @@ updateHslValues();
         <div class="col-md-6">
           <div class="mb-3">
             <div class="bg-secondary rounded text-center p-3 mb-3">
-              <img src="<?php echo '../assets/img/'.$isi_1_popup_pengumuman_web; ?>" alt="<?php echo $jenis_promosi; ?>" class="img-fluid">
+              <img src="<?php echo '../assets/img/'.$isi_1_popup_pengumuman_web; ?>" alt="<?php echo isset($jenis_promosi) ? $jenis_promosi : ''; ?>" class="img-fluid">
             </div>
             <input type="file" name="popup_pengumuman_web" class="form-control" id="formFile">
             <div class="form-text">
@@ -796,7 +826,7 @@ updateHslValues();
         </div>
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_pengumuman_web_2" class="form-control" value="<?php echo $isi_2_popup_pengumuman_web; ?>" required>
+            <input type="text" name="popup_pengumuman_web_2" class="form-control" value="<?php echo isset($isi_2_popup_pengumuman_web) ? $isi_2_popup_pengumuman_web : ''; ?>" required>
             <label>Teks Popup Pengumuman</label>
           </div>
         </div>
@@ -813,13 +843,13 @@ updateHslValues();
       <div class="row g-3">
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="rtp_web" class="form-control" value="<?php echo $isi_1_rtp_web; ?>" required>
+            <input type="text" name="rtp_web" class="form-control" value="<?php echo isset($isi_1_rtp_web) ? $isi_1_rtp_web : ''; ?>" required>
             <label>Angka Awal (Minimal : 0)</label>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="rtp_web_2" class="form-control" value="<?php echo $isi_2_rtp_web; ?>" required>
+            <input type="text" name="rtp_web_2" class="form-control" value="<?php echo isset($isi_2_rtp_web) ? $isi_2_rtp_web : ''; ?>" required>
             <label>Angka Akhir (Maksimal : 100)</label>
           </div>
         </div>
@@ -836,25 +866,25 @@ updateHslValues();
       <div class="row g-3">
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_belum_login_web" class="form-control" value="<?php echo $isi_1_popup_teks_belum_login_web; ?>" required>
+            <input type="text" name="popup_teks_belum_login_web" class="form-control" value="<?php echo isset($isi_1_popup_teks_belum_login_web) ? $isi_1_popup_teks_belum_login_web : ''; ?>" required>
             <label>Popup Teks Belum Login</label>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_tidak_ada_saldo_web" class="form-control" value="<?php echo $isi_1_popup_teks_tidak_ada_saldo_web; ?>" required>
+            <input type="text" name="popup_teks_tidak_ada_saldo_web" class="form-control" value="<?php echo isset($isi_1_popup_teks_tidak_ada_saldo_web) ? $isi_1_popup_teks_tidak_ada_saldo_web : ''; ?>" required>
             <label>Popup Teks Tidak Ada Saldo [ GAME ON/OFF]</label>
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_ada_saldo_web" class="form-control" value="<?php echo $isi_1_popup_teks_ada_saldo_web; ?>" required>
+            <input type="text" name="popup_teks_ada_saldo_web" class="form-control" value="<?php echo isset($isi_1_popup_teks_ada_saldo_web) ? $isi_1_popup_teks_ada_saldo_web : ''; ?>" required>
             <label>Popup Ada Saldo [ GAME LOCK ]</label>
           </div>
         </div>
        <div class="col-md-4">
           <div class="form-floating form-floating-outline">
-            <input type="text" name="popup_teks_setelah_withdraw_web" class="form-control" value="<?php echo $isi_1_popup_teks_setelah_withdraw_web; ?>" required>
+            <input type="text" name="popup_teks_setelah_withdraw_web" class="form-control" value="<?php echo isset($isi_1_popup_teks_setelah_withdraw_web) ? $isi_1_popup_teks_setelah_withdraw_web : ''; ?>" required>
             <label>Popup Teks Error [ GAME LOCK ]</label>
           </div>
         </div>
@@ -866,3 +896,42 @@ updateHslValues();
         </button>
       </div>
     </form>
+  </div>
+
+  <div class="card mb-4">
+    <h5 class="card-header">Pengaturan SEO & Redirect</h5>
+    <form method="post" class="card-body">
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="form-floating form-floating-outline">
+            <textarea name="google_verif" class="form-control"><?php echo $isi_1_google_verif; ?></textarea>
+            <label>Google Verification Meta Tag</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating form-floating-outline">
+            <input type="text" name="amp_url" class="form-control" value="<?php echo $isi_1_amp_url; ?>">
+            <label>AMP URL</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating form-floating-outline">
+            <input type="text" name="redirect_domain" class="form-control" value="<?php echo $isi_1_redirect_domain; ?>">
+            <label>Target Redirect Domain</label>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="status_redirect" id="status_redirect" value="1" <?php echo ($isi_2_redirect_domain == 1) ? 'checked' : ''; ?>>
+            <label class="form-check-label" for="status_redirect">Aktifkan Redirect (301 Permanent)</label>
+          </div>
+        </div>
+      </div>
+      <div class="pt-4 text-end">
+        <button type="submit" name="ubah_seo_redirect" class="btn btn-primary waves-effect waves-light">
+          <span class="tf-icons mdi mdi-content-save me-1"></span> Simpan SEO
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
