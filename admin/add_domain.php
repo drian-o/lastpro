@@ -1,5 +1,5 @@
 <?php
-// zuzulo/tambah_domain.php
+// drianojek
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -283,4 +283,31 @@ function konfirmasiHapusDomain(event, urlTarget) {
 
                             $badge_class = ($status_sekarang === 'active') ? 'bg-label-success' : 'bg-label-warning';
                             
-                            $url_
+                            $url_hapus = "?halaman=tambah_domain&aksi=hapus&id=".$row['id']."&cf_id=".$row['cloudflare_id'];
+                            ?>
+                            <tr style="border-bottom: 1px solid #3c3d56;">
+                                <td class="text-center fw-semibold"><?= $no++; ?></td>
+                                <td><span class="fw-bold text-white"><?= htmlspecialchars($row['domain_name'], ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                <td><span class="badge <?= $badge_class; ?> fw-bold"><?= strtoupper($status_sekarang); ?></span></td>
+                                <td class="text-center">
+                                    <a href="javascript:void(0);" 
+                                       onclick="konfirmasiHapusDomain(event, '<?= $url_hapus; ?>')" 
+                                       class="btn btn-sm text-white fw-bold" 
+                                       style="background-color: #ff3e1d;">
+                                        <i class="bx bx-trash me-1"></i> HAPUS
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php 
+                        } 
+                    } else {
+                        echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Belum ada custom domain yang terdaftar.</td></tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='4' class='text-center py-4 text-danger'>Koneksi database terputus. Pastikan file koneksi.php sudah benar.</td></tr>";
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+</div>
