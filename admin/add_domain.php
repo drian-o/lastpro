@@ -10,8 +10,8 @@ $cf_email    = "adrnsyah" . "18" . "@" . "gmail.com";
 $auth_p1     = "cfk_"; 
 $auth_p2     = "I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56";
 $cf_key      = $auth_p1 . $auth_p2;
-$api_coolify = "1|" . "oKcpXvShtMkxgo19ftMWq5TISsBin4CaC5Ozh10jca69c54f";
-$app_uuid    = "hii3cbzqugws8nhg7zvaba1a"; // Pastikan UUID ini milik aplikasi (bukan project/env)
+$api_coolify = "1|" . "5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
+$app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w"; // Pastikan UUID ini milik aplikasi (bukan project/env)
 
 function sinkronisasiCoolify() {
     global $koneksi, $api_coolify, $app_uuid;
@@ -32,7 +32,7 @@ function sinkronisasiCoolify() {
 
     // 1. PATCH Domain
     $payload = ["fqdn" => implode(",", $domains)];
-    $ch = curl_init("http://167.71.163.131:8000/api/v1/applications/$app_uuid");
+    $ch = curl_init("http://3.80.188.99:8000/api/v1/applications/$app_uuid");
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST => "PATCH",
@@ -43,7 +43,7 @@ function sinkronisasiCoolify() {
     curl_close($ch);
 
     // 2. FORCE DEPLOY
-    $ch2 = curl_init("http://167.71.163.131:8000/api/v1/applications/$app_uuid/deploy?force=true");
+    $ch2 = curl_init("http://3.80.188.99:8000/api/v1/applications/$app_uuid/deploy?force=true");
     curl_setopt_array($ch2, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CUSTOMREQUEST => "POST",
@@ -84,7 +84,7 @@ if (isset($_POST['id_to_active'])) {
     $id = mysqli_real_escape_string($koneksi, $_POST['id_to_active']);
     mysqli_query($koneksi, "UPDATE custom_domains SET status = 'active' WHERE id = '$id'");
     sinkronisasiCoolify();
-    $pesan = "<div class='alert alert-info'>Domain Aktif & Coolify Redeploying...</div>";
+    $pesan = "<div class='alert alert-info'>Domain Telah Aktif</div>";
 }
 
 // PROSES HAPUS
