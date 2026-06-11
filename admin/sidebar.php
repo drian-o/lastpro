@@ -23,135 +23,143 @@
       </a>
     </li>
 
-    <li class="menu-header fw-light mt-4">
-      <span class="menu-header-text">Data Utama</span>
-    </li>
-    <li class="menu-item" id="provider">
-      <a href="<?php echo $alamat_admin.'provider'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-gamepad-circle"></i>
-        <div>Provider</div>
-      </a>
-    </li>
-    <li class="menu-item" id="permainan">
-      <a href="<?php echo $alamat_admin.'permainan'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-slot-machine"></i>
-        <div>Permainan</div>
-      </a>
-    </li> 
-    <li class="menu-item" id="anggota">
-      <a href="<?php echo $alamat_admin.'anggota'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-account-multiple"></i>
-        <div>Anggota</div>
-      </a>
-    </li>
-
-    <li class="menu-header fw-light mt-4">
-      <span class="menu-header-text">Keuangan</span>
-    </li>
-    <li class="menu-item" id="deposit">
-      <a href="<?php echo $alamat_admin.'deposit'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-cash-plus"></i>
-        <div>Deposit</div>
-      </a>
-    </li>
-    <li class="menu-item" id="withdraw">
-      <a href="<?php echo $alamat_admin.'withdraw'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-cash-minus"></i>
-        <div>Withdraw</div>
-      </a>
-    </li>
-    <li class="menu-item" id="rekap">
-      <a href="<?php echo $alamat_admin.'rekap'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-text-box-outline"></i>
-        <div>Rekap</div>
-      </a>
-    </li>
-    <li class="menu-item" id="saldo">
-      <a href="<?php echo $alamat_admin.'saldo'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-cash"></i>
-        <div>Saldo</div>
-      </a>
-    </li>
-    <li class="menu-item" id="rekening">
-      <a href="<?php echo $alamat_admin.'rekening'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-bank"></i>
-        <div>Rekening</div>
-      </a>
-    </li>
-
-    <li class="menu-header fw-light mt-4">
-      <span class="menu-header-text">Pemasaran & Event</span>
-    </li>
-    <li class="menu-item" id="promosi">
-      <a href="<?php echo $alamat_admin.'promosi'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-image"></i>
-        <div>Promosi</div>
-      </a>
-    </li>
-    <li class="menu-item" id="bonus">
-      <a href="<?php echo $alamat_admin.'bonus'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-gift"></i>
-        <div>Bonus</div>
-      </a>
-    </li>
-    <li class="menu-item" id="refferal">
-      <a href="<?php echo $alamat_admin.'refferal'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-account-network"></i>
-        <div>Refferal</div>
-      </a>
-    </li>
-    <li class="menu-item" id="bukti_jp">
-      <a href="<?php echo $alamat_admin.'bukti_jp'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-star-outline"></i>
-        <div>Bukti JP</div>
-      </a>
-    </li>
-
-    <li class="menu-header fw-light mt-4">
-      <span class="menu-header-text">Manajemen Web</span>
-    </li>
-    <li class="menu-item" id="add_domain"> 
-      <a href="<?php echo $alamat_admin.'add_domain'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-web"></i>
-        <div>Tambah Domain</div>
-      </a>
-    </li>
-    <li class="menu-item" id="ikon_mengambang">
-      <a href="<?php echo $alamat_admin.'ikon_mengambang'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-shape-outline"></i>
-        <div>Ikon Mengambang</div>
-      </a>
-    </li>
-    <li class="menu-item" id="pemberitahuan">
-      <a href="<?php echo $alamat_admin.'pemberitahuan'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-bell-outline"></i>
-        <div>Pemberitahuan</div>
-      </a>
-    </li>
-
-    <li class="menu-header fw-light mt-4">
-      <span class="menu-header-text">Sistem & Akses</span>
-    </li>
-    <li class="menu-item" id="staff">
-      <a href="<?php echo $alamat_admin.'staff'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-account-group"></i>
-        <div>Staff</div>
-      </a>
-    </li>
-    <li class="menu-item" id="profil">
-      <a href="<?php echo $alamat_admin.'profil'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-account"></i>
-        <div>Profil</div>
-      </a>
-    </li>
-    <li class="menu-item" id="pengaturan">
-      <a href="<?php echo $alamat_admin.'pengaturan'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-cog"></i>
-        <div>Pengaturan</div>
-      </a>
-    </li>
     <li class="menu-item">
-      <a href="<?php echo $alamat_admin.'keluar.php'; ?>" class="menu-link">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons mdi mdi-database-outline"></i>
+        <div>Master Data</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item" id="provider">
+          <a href="<?php echo $alamat_admin.'provider'; ?>" class="menu-link">
+            <div>Provider</div>
+          </a>
+        </li>
+        <li class="menu-item" id="permainan">
+          <a href="<?php echo $alamat_admin.'permainan'; ?>" class="menu-link">
+            <div>Permainan</div>
+          </a>
+        </li> 
+        <li class="menu-item" id="anggota">
+          <a href="<?php echo $alamat_admin.'anggota'; ?>" class="menu-link">
+            <div>Anggota</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="menu-item">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons mdi mdi-wallet-outline"></i>
+        <div>Keuangan</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item" id="deposit">
+          <a href="<?php echo $alamat_admin.'deposit'; ?>" class="menu-link">
+            <div>Deposit</div>
+          </a>
+        </li>
+        <li class="menu-item" id="withdraw">
+          <a href="<?php echo $alamat_admin.'withdraw'; ?>" class="menu-link">
+            <div>Withdraw</div>
+          </a>
+        </li>
+        <li class="menu-item" id="rekap">
+          <a href="<?php echo $alamat_admin.'rekap'; ?>" class="menu-link">
+            <div>Rekap</div>
+          </a>
+        </li>
+        <li class="menu-item" id="saldo">
+          <a href="<?php echo $alamat_admin.'saldo'; ?>" class="menu-link">
+            <div>Saldo</div>
+          </a>
+        </li>
+        <li class="menu-item" id="rekening">
+          <a href="<?php echo $alamat_admin.'rekening'; ?>" class="menu-link">
+            <div>Rekening</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="menu-item">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons mdi mdi-bullhorn-outline"></i>
+        <div>Pemasaran & Event</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item" id="promosi">
+          <a href="<?php echo $alamat_admin.'promosi'; ?>" class="menu-link">
+            <div>Promosi</div>
+          </a>
+        </li>
+        <li class="menu-item" id="bonus">
+          <a href="<?php echo $alamat_admin.'bonus'; ?>" class="menu-link">
+            <div>Bonus</div>
+          </a>
+        </li>
+        <li class="menu-item" id="refferal">
+          <a href="<?php echo $alamat_admin.'refferal'; ?>" class="menu-link">
+            <div>Refferal</div>
+          </a>
+        </li>
+        <li class="menu-item" id="bukti_jp">
+          <a href="<?php echo $alamat_admin.'bukti_jp'; ?>" class="menu-link">
+            <div>Bukti JP</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="menu-item">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons mdi mdi-web"></i>
+        <div>Manajemen Web</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item" id="add_domain"> 
+          <a href="<?php echo $alamat_admin.'add_domain'; ?>" class="menu-link">
+            <div>Tambah Domain</div>
+          </a>
+        </li>
+        <li class="menu-item" id="ikon_mengambang">
+          <a href="<?php echo $alamat_admin.'ikon_mengambang'; ?>" class="menu-link">
+            <div>Ikon Mengambang</div>
+          </a>
+        </li>
+        <li class="menu-item" id="pemberitahuan">
+          <a href="<?php echo $alamat_admin.'pemberitahuan'; ?>" class="menu-link">
+            <div>Pemberitahuan</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="menu-item">
+      <a href="javascript:void(0);" class="menu-link menu-toggle">
+        <i class="menu-icon tf-icons mdi mdi-cog-outline"></i>
+        <div>Sistem & Akses</div>
+      </a>
+      <ul class="menu-sub">
+        <li class="menu-item" id="staff">
+          <a href="<?php echo $alamat_admin.'staff'; ?>" class="menu-link">
+            <div>Staff</div>
+          </a>
+        </li>
+        <li class="menu-item" id="profil">
+          <a href="<?php echo $alamat_admin.'profil'; ?>" class="menu-link">
+            <div>Profil</div>
+          </a>
+        </li>
+        <li class="menu-item" id="pengaturan">
+          <a href="<?php echo $alamat_admin.'pengaturan'; ?>" class="menu-link">
+            <div>Pengaturan</div>
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li class="menu-item mt-4">
+      <a href="<?php echo $alamat_admin.'keluar.php'; ?>" class="menu-link text-danger">
         <i class="menu-icon tf-icons mdi mdi-power"></i>
         <div>Keluar</div>
       </a>
