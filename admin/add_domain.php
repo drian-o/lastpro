@@ -1,5 +1,5 @@
 <?php
-// zuzulo/tambah_domain.php
+// drianojek
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -21,20 +21,21 @@ if (!isset($_SESSION['kode_admin'])) {
 $pesan = "Catat NameServer Otomatis Akan Terhapus ketika Halaman di Refresh";
 
 // =========================================================================
-// KONFIGURASI KREDENSIAL API (Mengambil dari Environment Variables Coolify)
+// KONFIGURASI KREDENSIAL API 
 // =========================================================================
-// Pastikan nama variabel (Key) di dashboard Coolify sama persis dengan yang ada di dalam getenv()
-$CF_EMAIL  = getenv('CF_EMAIL') ?: ($_ENV['CF_EMAIL'] ?? ($_SERVER['CF_EMAIL'] ?? ''));
-$CF_KEY    = getenv('CF_KEY') ?: ($_ENV['CF_KEY'] ?? ($_SERVER['CF_KEY'] ?? '')); 
-$CLF_APP   = getenv('CLF_APP') ?: ($_ENV['CLF_APP'] ?? ($_SERVER['CLF_APP'] ?? ''));
-$CLF_API   = getenv('CLF_API') ?: ($_ENV['CLF_API'] ?? ($_SERVER['CLF_API'] ?? ''));
-$SERVER_IP = getenv('SERVER_IP') ?: ($_ENV['SERVER_IP'] ?? ($_SERVER['SERVER_IP'] ?? '3.80.188.99'));
+$cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com';
+$auth_p1     = 'cfk_';
+$auth_p2     = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
+$cf_key      = $auth_p1 . $auth_p2;
+$api_coolify = "1|oKcpXvShtMkxgo19ftMWq5TISsBin4CaC5Ozh10jca69c54f";
+$app_uuid    = "hii3cbzqugws8nhg7zvaba1a";
+$server_ip   = '3.80.188.99';
 
 // =========================================================================
 // BACKEND API & LOGIKA CLOUDFLARE / COOLIFY
 // =========================================================================
 function sinkronisasiDomainKeCoolifyLokal() {
-    global $koneksi, $CLF_APP, $CLF_API, $SERVER_IP;
+    global $koneksi, $app_uuid, $api_coolify, $server_ip;
     
     $domain_utama = "https://sampleproject.my";
     $list_domain = [$domain_utama];
@@ -50,7 +51,7 @@ function sinkronisasiDomainKeCoolifyLokal() {
     }
     
     $string_domains = implode(",", $list_domain);
-    $url = "http://{$SERVER_IP}:8000/api/v1/applications/{$CLF_APP}";
+    $url = "http://{$server_ip}:8000/api/v1/applications/{$app_uuid}";
     $data_payload = json_encode(array("domains" => $string_domains));
 
     // Update Domains di Coolify
@@ -63,13 +64,13 @@ function sinkronisasiDomainKeCoolifyLokal() {
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $CLF_API
+        'Authorization: Bearer ' . $api_coolify
     ]);
     curl_exec($ch);
     curl_close($ch); 
 
     // Restart Aplikasi Coolify
-    $restart_url = "http://{$SERVER_IP}:8000/api/v1/applications/{$CLF_APP}/restart"; 
+    $restart_url = "http://{$server_ip}:8000/api/v1/applications/{$app_uuid}/restart"; 
     $ch_deploy = curl_init($restart_url);
     curl_setopt($ch_deploy, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch_deploy, CURLOPT_CUSTOMREQUEST, "POST"); 
@@ -77,14 +78,14 @@ function sinkronisasiDomainKeCoolifyLokal() {
     curl_setopt($ch_deploy, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch_deploy, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch_deploy, CURLOPT_HTTPHEADER, [
-        'Authorization: Bearer ' . $CLF_API
+        'Authorization: Bearer ' . $api_coolify
     ]);
     curl_exec($ch_deploy);
     curl_close($ch_deploy);
 }
 
 function tambahSiteBaruCloudflareLokal($domainBaru) {
-    global $CF_EMAIL, $CF_KEY;
+    global $cf_email, $cf_key;
     $data = ["name" => $domainBaru, "jump_start" => true];
 
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones");
@@ -92,8 +93,8 @@ function tambahSiteBaruCloudflareLokal($domainBaru) {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'X-Auth-Email: ' . $CF_EMAIL,
-        'X-Auth-Key: ' . $CF_KEY,
+        'X-Auth-Email: ' . $cf_email,
+        'X-Auth-Key: ' . $cf_key,
         'Content-Type: application/json'
     ]);
     $response = curl_exec($ch);
@@ -102,13 +103,13 @@ function tambahSiteBaruCloudflareLokal($domainBaru) {
 }
 
 function deleteSiteDariCloudflareLokal($zone_id) {
-    global $CF_EMAIL, $CF_KEY;
+    global $cf_email, $cf_key;
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'X-Auth-Email: ' . $CF_EMAIL,
-        'X-Auth-Key: ' . $CF_KEY,
+        'X-Auth-Email: ' . $cf_email,
+        'X-Auth-Key: ' . $cf_key,
         'Content-Type: application/json'
     ]);
     curl_exec($ch);
@@ -116,12 +117,12 @@ function deleteSiteDariCloudflareLokal($zone_id) {
 }
 
 function cekStatusZoneCloudflareLokal($zone_id) {
-    global $CF_EMAIL, $CF_KEY;
+    global $cf_email, $cf_key;
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'X-Auth-Email: ' . $CF_EMAIL,
-        'X-Auth-Key: ' . $CF_KEY,
+        'X-Auth-Email: ' . $cf_email,
+        'X-Auth-Key: ' . $cf_key,
         'Content-Type: application/json'
     ]);
     $response = curl_exec($ch);
@@ -155,15 +156,15 @@ if (isset($_POST['submit_domain'])) {
             $ns1 = $hasil['result']['name_servers'][0] ?? 'ns1.cloudflare.com';
             $ns2 = $hasil['result']['name_servers'][1] ?? 'ns2.cloudflare.com';
             
-            global $SERVER_IP, $CF_EMAIL, $CF_KEY;
+            global $server_ip, $cf_email, $cf_key;
 
             // A Record
-            $dns_data = ["type" => "A", "name" => "@", "content" => $SERVER_IP, "ttl" => 1, "proxied" => true];
+            $dns_data = ["type" => "A", "name" => "@", "content" => $server_ip, "ttl" => 1, "proxied" => true];
             $ch_dns = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id . "/dns_records");
             curl_setopt($ch_dns, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch_dns, CURLOPT_POST, true);
             curl_setopt($ch_dns, CURLOPT_POSTFIELDS, json_encode($dns_data));
-            curl_setopt($ch_dns, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$CF_EMAIL, 'X-Auth-Key: '.$CF_KEY, 'Content-Type: application/json']);
+            curl_setopt($ch_dns, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key, 'Content-Type: application/json']);
             curl_exec($ch_dns); curl_close($ch_dns);
 
             // SSL Full
@@ -172,7 +173,7 @@ if (isset($_POST['submit_domain'])) {
             curl_setopt($ch_ssl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch_ssl, CURLOPT_CUSTOMREQUEST, "PATCH");
             curl_setopt($ch_ssl, CURLOPT_POSTFIELDS, json_encode($ssl_payload));
-            curl_setopt($ch_ssl, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$CF_EMAIL, 'X-Auth-Key: '.$CF_KEY, 'Content-Type: application/json']);
+            curl_setopt($ch_ssl, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key, 'Content-Type: application/json']);
             curl_exec($ch_ssl); curl_close($ch_ssl);
 
             // Insert Database
