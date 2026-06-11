@@ -85,12 +85,6 @@
         <div>Rekening</div>
       </a>
     </li>
-     <li class="menu-item" id="bonus">
-      <a href="<?php echo $alamat_admin.'bonus'; ?>" class="menu-link">
-        <i class="menu-icon tf-icons mdi mdi-sale"></i>
-        <div>Bonus</div>
-      </a>
-    </li> -->
     <li class="menu-item" id="promosi">
       <a href="<?php echo $alamat_admin.'promosi'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-image"></i>
