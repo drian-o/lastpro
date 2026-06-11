@@ -24,11 +24,11 @@ $pesan = "Catat NameServer Otomatis Akan Terhapus ketika Halaman di Refresh";
 // KONFIGURASI KREDENSIAL API (Mengambil dari Environment Variables Coolify)
 // =========================================================================
 // Pastikan nama variabel (Key) di dashboard Coolify sama persis dengan yang ada di dalam getenv()
-$CF_EMAIL  = getenv('CF_EMAIL');
-$CF_KEY    = getenv('CF_KEY'); 
-$CLF_APP   = getenv('CLF_APP');
-$CLF_API   = getenv('CLF_API');
-$SERVER_IP = getenv('SERVER_IP');
+$CF_EMAIL  = getenv('CF_EMAIL') ?: ($_ENV['CF_EMAIL'] ?? ($_SERVER['CF_EMAIL'] ?? ''));
+$CF_KEY    = getenv('CF_KEY') ?: ($_ENV['CF_KEY'] ?? ($_SERVER['CF_KEY'] ?? '')); 
+$CLF_APP   = getenv('CLF_APP') ?: ($_ENV['CLF_APP'] ?? ($_SERVER['CLF_APP'] ?? ''));
+$CLF_API   = getenv('CLF_API') ?: ($_ENV['CLF_API'] ?? ($_SERVER['CLF_API'] ?? ''));
+$SERVER_IP = getenv('SERVER_IP') ?: ($_ENV['SERVER_IP'] ?? ($_SERVER['SERVER_IP'] ?? '3.80.188.99'));
 
 // =========================================================================
 // BACKEND API & LOGIKA CLOUDFLARE / COOLIFY
