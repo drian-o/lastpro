@@ -31,7 +31,7 @@
     <li class="menu-header fw-light mt-4">
       <span class="menu-header-text">Menu Utama</span>
     </li>
-    <!-- <li class="menu-item" id="provider">
+     <li class="menu-item" id="provider">
       <a href="<?php echo $alamat_admin.'provider'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-gamepad-circle"></i>
         <div>Provider</div>
@@ -42,14 +42,14 @@
         <i class="menu-icon tf-icons mdi mdi-slot-machine"></i>
         <div>Permainan</div>
       </a>
-    </li> -->
+    </li> 
     <li class="menu-item" id="anggota">
       <a href="<?php echo $alamat_admin.'anggota'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-account-multiple"></i>
         <div>Anggota</div>
       </a>
     </li>
-   <!--  <li class="menu-item" id="pemberitahuan">
+     <li class="menu-item" id="pemberitahuan">
       <a href="<?php echo $alamat_admin.'pemberitahuan'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-gamepad-circle"></i>
         <div>Pemberitahuan</div>
@@ -67,6 +67,12 @@
         <div>Withdraw</div>
       </a>
     </li>
+     <li class="menu-item" id="rekap">
+      <a href="<?php echo $alamat_admin.'rekap'; ?>" class="menu-link">
+        <i class="menu-icon tf-icons mdi mdi-cash-minus"></i>
+        <div>Rekap</div>
+      </a>
+    </li>
     <li class="menu-item" id="saldo">
       <a href="<?php echo $alamat_admin.'saldo'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-cash"></i>
@@ -79,7 +85,7 @@
         <div>Rekening</div>
       </a>
     </li>
-    <!-- <li class="menu-item" id="bonus">
+     <li class="menu-item" id="bonus">
       <a href="<?php echo $alamat_admin.'bonus'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-sale"></i>
         <div>Bonus</div>
@@ -115,12 +121,12 @@
         <div>Ikon Mengambang</div>
       </a>
     </li>
-    <!-- <li class="menu-item" id="bukti_jp">
+     <li class="menu-item" id="bukti_jp">
       <a href="<?php echo $alamat_admin.'bukti_jp'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-star-outline"></i>
         <div>Bukti JP</div>
       </a>
-    </li>-->
+    </li>
     <li class="menu-item" id="staff">
       <a href="<?php echo $alamat_admin.'staff'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-account-group"></i>
