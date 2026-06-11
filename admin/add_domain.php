@@ -6,7 +6,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // WAJIB PANGGIL KONEKSI DATABASE DI SINI AGAR TIDAK ERROR SAAT INSERT/DELETE
-require_once 'koneksi.php'; 
+require_once '../koneksi.php';
 
 if (!isset($alamat_admin)) {
     $current_dir_url_path = dirname($_SERVER['SCRIPT_NAME']);
