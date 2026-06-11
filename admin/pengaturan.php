@@ -914,19 +914,6 @@ updateHslValues();
             <label>AMP URL</label>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="form-floating form-floating-outline">
-            <input type="text" name="redirect_domain" class="form-control" value="<?php echo $isi_1_redirect_domain; ?>">
-            <label>Target Redirect Domain</label>
-          </div>
-        </div>
-        <div class="col-12">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="status_redirect" id="status_redirect" value="1" <?php echo ($isi_2_redirect_domain == 1) ? 'checked' : ''; ?>>
-            <label class="form-check-label" for="status_redirect">Aktifkan Redirect (301 Permanent)</label>
-          </div>
-        </div>
-      </div>
       <div class="pt-4 text-end">
         <button type="submit" name="ubah_seo_redirect" class="btn btn-primary waves-effect waves-light">
           <span class="tf-icons mdi mdi-content-save me-1"></span> Simpan SEO
