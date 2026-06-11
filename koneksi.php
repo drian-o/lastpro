@@ -18,7 +18,7 @@ define('CF_KEY', getenv('CF_GLOBAL_KEY'));
 define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
 define('API_COOLIFY', getenv('API_COOLIFY'));
 define('APP_UUID', getenv('APP_UUID'));
-define('COOLIFY_URL', 'http://167.71.163.131:8000');
+define('COOLIFY_URL', 'http://3.80.188.99:8000');
 // ---------------------------------------------------
 
 // FUNGSI SAKTI ADD DOMAIN KE CLOUDFLARE
