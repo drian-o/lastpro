@@ -66,10 +66,9 @@ while ($row = mysqli_fetch_array($theme_color_query)) {
 	<meta charSet="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	
 	<?php echo $seo_google_verif; ?>
 	<?php if ($seo_amp_url != '') { ?>
-		<link rel="amphtml" href="<?php echo $seo_amp_url; ?>">
+	<link rel="amphtml" href="<?php echo $seo_amp_url; ?>">
 	<?php } ?>
 	<link rel="stylesheet" href="_next/static/css/0a4ae62ed810513b.css" data-precedence="next" />
 	<link rel="stylesheet" href="_next/static/css/54fc46000f7e20bc.css" data-precedence="next" />
@@ -81,12 +80,13 @@ while ($row = mysqli_fetch_array($theme_color_query)) {
 	<meta name="application-name" content="<?php echo $isi_1_judul_web; ?>" />
 	<link rel="author" href="" />
 	<meta name="author" content="<?php echo $isi_1_judul_web; ?>" />
+	<link rel="canonical" href="<?php echo $alamat_website; ?>" />
 	<meta name="generator" content="<?php echo $alamat_website; ?>" />
 	<meta name="keywords" content="<?php echo $isi_1_judul_web; ?> 88,<?php echo $isi_1_judul_web; ?>" />
 	<meta name="referrer" content="origin-when-cross-origin" />
 	<meta name="color-scheme" content="dark" />
 	<meta name="creator" content="<?php echo $isi_1_judul_web; ?>" />
-	<meta name="publisher" content="<?php echo $isi_1_judul_web; ?> - Best E-Gaming Provider" />
+	<meta name="publisher" content="<?php echo $isi_1_judul_web; ?>" />
 	<link rel="bookmarks" href="/" />
 	<meta name="category" content="games" />
 	<meta name="robots" content="index,follow" />
@@ -99,8 +99,8 @@ while ($row = mysqli_fetch_array($theme_color_query)) {
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-title" content="<?php echo $isi_1_judul_web; ?> | Cepat Dan Pasti" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-	<meta property="og:title" content="<?php echo $isi_1_judul_web; ?> | Cepat Dan Pasti" />
-	<meta property="og:description" content="<?php echo $isi_1_judul_web; ?>: Mengedepankan keinginan pemain untuk dapat kesuksesan yang nyata dan cepat." />
+	<meta property="og:title" content="<?php echo $isi_1_judul_web; ?>" />
+	<meta property="og:description" content="<?php echo $isi_1_judul_web; ?>" />
 	<meta property="og:site_name" content="<?php echo $isi_1_judul_web; ?>" />
 	<meta property="og:image:width" content="800" />
 	<meta property="og:image:height" content="600" />
