@@ -1,5 +1,5 @@
 <?php
-// drianojek
+// zuzulo/tambah_domain.php
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -27,8 +27,8 @@ $cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com';
 $auth_p1     = 'cfk_';
 $auth_p2     = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
 $cf_key      = $auth_p1 . $auth_p2;
-$api_coolify = "1|oKcpXvShtMkxgo19ftMWq5TISsBin4CaC5Ozh10jca69c54f";
-$app_uuid    = "hii3cbzqugws8nhg7zvaba1a";
+$api_coolify = "1|5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
+$app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w";
 $server_ip   = '3.80.188.99';
 
 // =========================================================================
@@ -176,14 +176,28 @@ if (isset($_POST['submit_domain'])) {
             curl_setopt($ch_ssl, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key, 'Content-Type: application/json']);
             curl_exec($ch_ssl); curl_close($ch_ssl);
 
-            // Insert Database
-            $query_simpan = "INSERT INTO custom_domains (domain_name, cloudflare_id, status) VALUES ('$domain_clean', '$zone_id', 'pending')";
-            if (mysqli_query($koneksi, $query_simpan)) {
-                sinkronisasiDomainKeCoolifyLokal();
-                $pesan = "<div class='alert alert-success alert-dismissible fade show' role='alert'><strong>🎉 Domain Berhasil Terdaftar!</strong><br><small>Silakan arahkan NameServer domain user Anda ke:</small><br><code>1. $ns1</code><br><code>2. $ns2</code><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
-            } else {
-                 $pesan = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>Gagal menyimpan ke database!<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
+            // Insert Database dengan sistem Try-Catch agar tidak blank
+            try {
+                $query_simpan = "INSERT INTO custom_domains (user_id, domain_name, cloudflare_id, status, created_at, updated_at) 
+                                 VALUES (1, '$domain_clean', '$zone_id', 'pending', NOW(), NOW())";
+                                 
+                if (mysqli_query($koneksi, $query_simpan)) {
+                    sinkronisasiDomainKeCoolifyLokal();
+                    $pesan = "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+                                <strong>🎉 Domain Berhasil Terdaftar!</strong><br>
+                                <small>Silakan arahkan NameServer domain user Anda ke:</small><br>
+                                <code>1. $ns1</code><br><code>2. $ns2</code>
+                                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                              </div>";
+                }
+            } catch (Exception $e) {
+                // Menangkap error database agar layar tidak blank
+                $pesan = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                            <strong>Gagal menyimpan ke database:</strong> " . $e->getMessage() . "
+                            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                          </div>";
             }
+            
         } else {
             $error_msg = $hasil['errors'][0]['message'] ?? 'Cloudflare Error.';
             $pesan = "<div class='alert alert-danger alert-dismissible fade show' role='alert'>$error_msg<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
@@ -269,31 +283,4 @@ function konfirmasiHapusDomain(event, urlTarget) {
 
                             $badge_class = ($status_sekarang === 'active') ? 'bg-label-success' : 'bg-label-warning';
                             
-                            $url_hapus = "?halaman=tambah_domain&aksi=hapus&id=".$row['id']."&cf_id=".$row['cloudflare_id'];
-                            ?>
-                            <tr style="border-bottom: 1px solid #3c3d56;">
-                                <td class="text-center fw-semibold"><?= $no++; ?></td>
-                                <td><span class="fw-bold text-white"><?= htmlspecialchars($row['domain_name'], ENT_QUOTES, 'UTF-8'); ?></span></td>
-                                <td><span class="badge <?= $badge_class; ?> fw-bold"><?= strtoupper($status_sekarang); ?></span></td>
-                                <td class="text-center">
-                                    <a href="javascript:void(0);" 
-                                       onclick="konfirmasiHapusDomain(event, '<?= $url_hapus; ?>')" 
-                                       class="btn btn-sm text-white fw-bold" 
-                                       style="background-color: #ff3e1d;">
-                                        <i class="bx bx-trash me-1"></i> HAPUS
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php 
-                        } 
-                    } else {
-                        echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Belum ada custom domain yang terdaftar.</td></tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='4' class='text-center py-4 text-danger'>Koneksi database terputus. Pastikan file koneksi.php sudah benar.</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+                            $url_
