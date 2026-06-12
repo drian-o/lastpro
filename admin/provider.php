@@ -40,27 +40,46 @@
               $updated_count = 0; 
               $error_db_count = 0;
 
-              // Query disesuaikan untuk memasukkan kolom total_games
-              $stmt = $koneksi->prepare("INSERT INTO game_providers (provider_code, provider_name, status, logo_url, description, total_games, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW()) ON DUPLICATE KEY UPDATE provider_name = VALUES(provider_name), status = VALUES(status), logo_url = VALUES(logo_url), description = VALUES(description), total_games = VALUES(total_games), updated_at = NOW()");
+              // SESUAIKAN DENGAN TABEL tb_provider
+              $stmt = $koneksi->prepare("INSERT INTO tb_provider (providerid, providername, slug, type, status, providerimage, jenis, providerapi) VALUES (?, ?, ?, ?, ?, ?, ?, 'GxG') ON DUPLICATE KEY UPDATE providername = VALUES(providername), slug = VALUES(slug), type = VALUES(type), status = VALUES(status), providerimage = VALUES(providerimage), jenis = VALUES(jenis)");
 
               if ($stmt === false) {
                   $database_message = '<div class="alert alert-danger"><strong>Kesalahan SQL:</strong> ' . htmlspecialchars($koneksi->error) . '</div>';
               } else {
                   foreach ($response['data']['providers'] as $api_provider) {
-                      $code = $api_provider['provider_code'] ?? '';
-                      $name = $api_provider['provider_name'] ?? 'Unknown Provider';
-                      $status = $api_provider['status'] ?? 'inactive';
-                      $image_url = $api_provider['logo_url'] ?? null;
+                      $providerid = $api_provider['provider_code'] ?? '';
+                      $providername = $api_provider['provider_name'] ?? 'Unknown';
+                      $slug = strtolower($providerid); // Bikin slug dari ID
+                      $api_image = $api_provider['logo_url'] ?? '';
                       
-                      // Coba tangkap Tipe Game dari berbagai kemungkinan nama key API
-                      $type = $api_provider['type'] ?? $api_provider['category'] ?? $api_provider['provider_type'] ?? 'slot';
-                      
-                      // Coba tangkap Jumlah Game dari berbagai kemungkinan nama key API
-                      $game_count = (int)($api_provider['game_count'] ?? $api_provider['total_games'] ?? $api_provider['games'] ?? 0);
+                      // Status mapping (API 'active' = DB 1)
+                      $api_status = $api_provider['status'] ?? 'inactive';
+                      $status_int = ($api_status === 'active') ? 1 : 0;
 
-                      if (!empty($code)) {
-                          // bind_param pakai "sssssi" karena game_count adalah integer (i)
-                          $stmt->bind_param("sssssi", $code, $name, $status, $image_url, $type, $game_count);
+                      // Tangkap tipe mentah dari API
+                      $raw_type = strtolower($api_provider['type'] ?? $api_provider['category'] ?? $api_provider['provider_type'] ?? 'slot');
+                      
+                      // Mapping Jenis (angka) dan Type (teks) sesuai format tb_provider
+                      $jenis_int = 1; // Default Slot
+                      $type_teks = 'SL';
+                      
+                      if (strpos($raw_type, 'sport') !== false) {
+                          $jenis_int = 2; $type_teks = 'sports';
+                      } elseif (strpos($raw_type, 'casino') !== false) {
+                          $jenis_int = 3; $type_teks = 'casino';
+                      } elseif (strpos($raw_type, 'fish') !== false || strpos($raw_type, 'arcade') !== false) {
+                          $jenis_int = 4; $type_teks = 'arcade';
+                      } elseif (strpos($raw_type, 'lottery') !== false || strpos($raw_type, 'togel') !== false) {
+                          $jenis_int = 6; $type_teks = 'Lottery';
+                      } elseif (strpos($raw_type, 'e-game') !== false) {
+                          $jenis_int = 5; $type_teks = 'egames';
+                      }
+
+                      if (!empty($providerid)) {
+                          // bind_param: s (string), i (integer)
+                          // "ssssisi" = string, string, string, string, integer, string, integer
+                          $stmt->bind_param("ssssisi", $providerid, $providername, $slug, $type_teks, $status_int, $api_image, $jenis_int);
+                          
                           if ($stmt->execute()) {
                               if ($stmt->affected_rows === 1) {
                                   $inserted_count++; 
@@ -73,14 +92,13 @@
                       }
                   }
                   $stmt->close();
-                  $database_message = '<div class="alert alert-success alert-dismissible fade show"><strong>Proses Selesai!</strong><br>Data Baru: <strong>'.$inserted_count.'</strong><br>Data Diperbarui: <strong>'.$updated_count.'</strong><br>Gagal: <strong>'.$error_db_count.'</strong><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+                  $database_message = '<div class="alert alert-success alert-dismissible fade show" style="background-color: #28a745; color: white; padding: 15px; border-radius: 5px;"><strong>Proses Selesai!</strong><br>Data Baru: <strong>'.$inserted_count.'</strong><br>Data Diperbarui: <strong>'.$updated_count.'</strong><br>Gagal: <strong>'.$error_db_count.'</strong></div>';
               }
           } else {
-              $pesan_error = $response['message'] ?? 'Tidak ada data di API.';
-              $database_message = '<div class="alert alert-danger alert-dismissible fade show"><strong>API Error:</strong> Gagal mengambil daftar provider dari API GameXa. ('.$pesan_error.')<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+              $database_message = '<div class="alert alert-danger" style="background-color: #dc3545; color: white; padding: 15px;"><strong>API Error:</strong> Gagal mengambil daftar provider.</div>';
           }
       } catch (Throwable $e) { 
-          $database_message = '<div class="alert alert-danger alert-dismissible fade show"><strong>Sistem Terhenti:</strong> ' . htmlspecialchars($e->getMessage()) . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+          $database_message = '<div class="alert alert-danger" style="background-color: #dc3545; color: white; padding: 15px;"><strong>Sistem Terhenti:</strong> ' . htmlspecialchars($e->getMessage()) . '</div>';
       }
   }
 
@@ -88,21 +106,19 @@
   $all_db_providers = [];
   $all_db_providers_error = '';
   $game_summary_data = [];
-  $total_semua_game = 0; // Buat ngitung grand total 6656
 
   try {
-      // Ambil daftar provider beserta jumlah gamenya
-      $query_all_providers = $koneksi->query("SELECT id, provider_code, provider_name, description AS provider_type, status AS provider_status, logo_url AS provider_image, total_games FROM game_providers ORDER BY provider_name ASC");
+      // Tarik dari tb_provider
+      $query_all_providers = $koneksi->query("SELECT cuid, providerid, providername, type, status, providerimage FROM tb_provider ORDER BY providername ASC");
       if ($query_all_providers) {
           while ($row = $query_all_providers->fetch_assoc()) {
               $all_db_providers[] = $row;
-              $total_semua_game += (int)$row['total_games']; // Hitung total ke keseluruhan
           }
           $query_all_providers->free();
       }
 
-      // Ambil ringkasan (Menghitung jumlah provider DAN total game per tipe)
-      $query_summary = $koneksi->query("SELECT description AS game_type, COUNT(*) AS total_providers, SUM(total_games) AS total_games_count FROM game_providers GROUP BY description ORDER BY description");
+      // Ringkasan Provider
+      $query_summary = $koneksi->query("SELECT type, COUNT(*) AS total_providers FROM tb_provider GROUP BY type ORDER BY type");
       if ($query_summary) {
           while ($row = $query_summary->fetch_assoc()) {
               $game_summary_data[] = $row;
@@ -116,45 +132,39 @@
 ?>
 
 <div class="container-xxl flex-grow-1 container-p-y">
-  <h4 class="py-3 mb-4"><span class="text-muted fw-light">Menu Utama /</span> Daftar Provider GameXa</h4>
+  <h4 class="py-3 mb-4" style="color: white;"><span class="text-muted fw-light">Menu Utama /</span> Daftar Provider GameXa</h4>
 
   <div class="row">
     <div class="col-md-12">
       <div class="card mb-4" style="background-color: #2b2c40; color: #cbcbd6;">
-        <div class="card-body">
+        <div class="card-body" style="padding: 20px;">
           <p class="text-white">Klik tombol di bawah untuk menyinkronkan daftar provider game dari API GameXa ke database Anda secara otomatis.</p>
 
           <form method="POST" action="">
-              <button type="submit" name="update_providers_and_db" class="btn text-white fw-bold mb-3" style="background-color: #696cff;">
-                  <i class="bx bx-sync me-1"></i> Sinkronisasi API ke Database
+              <button type="submit" name="update_providers_and_db" class="btn text-white fw-bold mb-3" style="background-color: #696cff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                  Sinkronisasi API ke Database
               </button>
           </form>
 
           <?php echo $database_message; ?>
 
-          <hr class="border-secondary my-4" />
+          <hr style="border-color: #444; margin: 30px 0;" />
 
-          <!-- BAGIAN RINGKASAN DATA (Dipindah ke atas biar gampang dibaca) -->
-          <h5 class="text-white fw-bold d-flex justify-content-between align-items-center">
-            Ringkasan Database
-            <span class="badge bg-primary fs-6">Grand Total Game: <?php echo $total_semua_game; ?></span>
-          </h5>
+          <h5 class="text-white fw-bold">Ringkasan Tipe Provider Database</h5>
           <?php if (!empty($game_summary_data)): ?>
-            <div class="table-responsive text-nowrap mb-4" style="max-width: 600px;">
-              <table class="table mb-0">
+            <div class="table-responsive text-nowrap mb-4">
+              <table class="table mb-0" style="width: 100%; text-align: left; color: white;">
                 <thead>
                   <tr style="border-bottom: 1px solid #444;">
-                    <th style="color: #a3a4cc;">TIPE GAME</th>
-                    <th style="color: #a3a4cc;" class="text-center">JUMLAH PROVIDER</th>
-                    <th style="color: #a3a4cc;" class="text-center">TOTAL GAME</th>
+                    <th style="padding: 10px;">TIPE GAME</th>
+                    <th style="padding: 10px;">JUMLAH PROVIDER</th>
                   </tr>
                 </thead>
-                <tbody class="table-border-bottom-0">
+                <tbody>
                   <?php foreach ($game_summary_data as $summary_row): ?>
                     <tr style="border-bottom: 1px solid #3c3d56;">
-                      <td><strong class="text-white"><?php echo strtoupper(htmlspecialchars($summary_row['game_type'])); ?></strong></td>
-                      <td class="text-center text-white"><?php echo htmlspecialchars($summary_row['total_providers']); ?></td>
-                      <td class="text-center text-success fw-bold"><?php echo htmlspecialchars($summary_row['total_games_count'] ?? 0); ?></td>
+                      <td style="padding: 10px;"><strong><?php echo strtoupper(htmlspecialchars($summary_row['type'])); ?></strong></td>
+                      <td style="padding: 10px;"><?php echo htmlspecialchars($summary_row['total_providers']); ?></td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
@@ -164,44 +174,41 @@
             <p class="text-muted">Belum ada data ringkasan.</p>
           <?php endif; ?>
 
-          <hr class="border-secondary my-4" />
+          <hr style="border-color: #444; margin: 30px 0;" />
 
-          <!-- TABEL DAFTAR PROVIDER -->
           <h5 class="text-white fw-bold">Daftar Semua Provider dari Database:</h5>
           <?php if (!empty($all_db_providers_error)): ?>
-            <div class="alert alert-danger mt-3" role="alert"><strong>Error:</strong> <?php echo htmlspecialchars($all_db_providers_error); ?></div>
+            <div class="alert alert-danger mt-3" style="background-color: #dc3545; color: white; padding: 15px;"><strong>Error:</strong> <?php echo htmlspecialchars($all_db_providers_error); ?></div>
           <?php elseif (!empty($all_db_providers)): ?>
             <div class="table-responsive text-nowrap">
-              <table class="table mb-0">
+              <table class="table mb-0" style="width: 100%; text-align: left; color: white; border-collapse: collapse;">
                 <thead>
-                  <tr style="border-bottom: 1px solid #444;">
-                    <th style="color: #a3a4cc;">KODE</th>
-                    <th style="color: #a3a4cc;">NAMA PROVIDER</th>
-                    <th style="color: #a3a4cc;">TIPE</th>
-                    <th style="color: #a3a4cc;" class="text-center">JUMLAH GAME</th>
-                    <th style="color: #a3a4cc;">STATUS</th>
-                    <th style="color: #a3a4cc;" class="text-center">LOGO</th>
+                  <tr style="border-bottom: 2px solid #444;">
+                    <th style="padding: 10px;">KODE</th>
+                    <th style="padding: 10px;">NAMA PROVIDER</th>
+                    <th style="padding: 10px;">TIPE</th>
+                    <th style="padding: 10px;">STATUS</th>
+                    <th style="padding: 10px;">LOGO</th>
                   </tr>
                 </thead>
-                <tbody class="table-border-bottom-0">
+                <tbody>
                   <?php foreach ($all_db_providers as $provider): ?>
                     <tr style="border-bottom: 1px solid #3c3d56;">
-                      <td><strong class="text-white"><?php echo htmlspecialchars($provider['provider_code']); ?></strong></td>
-                      <td class="text-white"><?php echo htmlspecialchars($provider['provider_name']); ?></td>
-                      <td class="text-muted"><?php echo strtoupper(htmlspecialchars($provider['provider_type'])); ?></td>
-                      <td class="text-center text-info fw-bold"><?php echo htmlspecialchars($provider['total_games'] ?? 0); ?></td>
-                      <td>
-                        <?php
-                          $status_text = $provider['provider_status'] ?? 'unknown';
-                          $status_color = ($status_text === 'active') ? 'bg-label-success' : 'bg-label-danger';
-                        ?>
-                        <span class="badge <?php echo $status_color; ?> fw-bold"><?php echo strtoupper(htmlspecialchars($status_text)); ?></span>
-                      </td>
-                      <td class="text-center">
-                        <?php if (!empty($provider['provider_image'])): ?>
-                          <img src="<?php echo htmlspecialchars($provider['provider_image']); ?>" alt="Logo" style="max-width: 60px; height: auto; border-radius: 4px;">
+                      <td style="padding: 10px;"><strong><?php echo htmlspecialchars($provider['providerid']); ?></strong></td>
+                      <td style="padding: 10px;"><?php echo htmlspecialchars($provider['providername']); ?></td>
+                      <td style="padding: 10px;"><?php echo strtoupper(htmlspecialchars($provider['type'])); ?></td>
+                      <td style="padding: 10px;">
+                        <?php if ($provider['status'] == 1): ?>
+                            <span style="background-color: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">ACTIVE</span>
                         <?php else: ?>
-                          <span class="text-muted"><small>Tidak Ada</small></span>
+                            <span style="background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">INACTIVE</span>
+                        <?php endif; ?>
+                      </td>
+                      <td style="padding: 10px;">
+                        <?php if (!empty($provider['providerimage'])): ?>
+                          <img src="<?php echo htmlspecialchars($provider['providerimage']); ?>" alt="Logo" style="max-width: 60px; height: auto; border-radius: 4px;">
+                        <?php else: ?>
+                          <span style="color: #888; font-size: 12px;">Tidak Ada</span>
                         <?php endif; ?>
                       </td>
                     </tr>
@@ -210,7 +217,7 @@
               </table>
             </div>
           <?php else: ?>
-            <p class="text-muted">Tidak ada provider di database. Klik tombol Sinkronisasi di atas untuk mengisinya.</p>
+            <p class="text-muted">Tidak ada provider di database. Klik tombol Sinkronisasi di atas.</p>
           <?php endif; ?>
           
         </div>
