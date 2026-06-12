@@ -1,62 +1,48 @@
 <?php
-  // Aktifkan pelaporan kesalahan PHP untuk debugging (HAPUS INI DI PRODUKSI)
+  // Aktifkan pelaporan kesalahan PHP untuk debugging
   ini_set('display_errors', 1);
   ini_set('display_startup_errors', 1);
   error_reporting(E_ALL);
 
-  // Memulai session, jika belum dimulai di koneksi.php
   if (session_status() == PHP_SESSION_NONE) {
       session_start();
   }
 
-  // Sertakan file koneksi.php terlebih dahulu, karena mengandung $alamat_admin dan $koneksi
-  include_once '../koneksi.php';
+  require_once '../koneksi.php';
 
-  // SERTKAN FILE KELAS GameXaAPI
-  // Pastikan path ini benar sesuai lokasi class.exa.php Anda
-  include_once '../classes/class.exa.php';
-
-  // --- Pengalihan jika admin belum login ---
-  // Variabel $alamat_admin didapatkan dari koneksi.php
-  if (!isset($_SESSION['kode_admin'])) {
-    echo '
-      <script>
-        alert("Terjadi kesalahan, harap masuk kembali!");
-        window.location.replace("'.$alamat_admin.'keluar.php");
-      </script>
-    ';
-    exit(); // Penting: tambahkan exit setelah redirect
+  // PASTIKAN FILE INI BENAR-BENAR ADA DI SERVER! JIKA TIDAK, AKAN HTTP 500
+  if(file_exists('../classes/class.exa.php')){
+      require_once '../classes/class.exa.php';
+      $gameXaAPI = new GameXaAPI(); 
+  } else {
+      die("<b>FATAL ERROR:</b> File class.exa.php tidak ditemukan di folder classes!");
   }
 
-  // --- Inisialisasi GameXaAPI ---
-  $gameXaAPI = new GameXaAPI(); 
+  if (!isset($_SESSION['kode_admin'])) {
+    echo '<script>alert("Terjadi kesalahan, harap masuk kembali!"); window.location.replace("'.$alamat_admin.'keluar.php");</script>';
+    exit();
+  }
 
-  // --- Inisialisasi Variabel untuk Tampilan ---
-  $database_message = ''; // Pesan untuk status update/insert database
-  
-  // --- Ambil semua kombinasi unik provider_code dan game_type dari srg_gamelist ---
-  // Ini akan menjadi basis data utama untuk provider_code dan provider_type yang akan disimpan
+  $database_message = ''; 
   $gamelist_entries_for_insert = []; 
-  $game_summary_error = ''; // Untuk pesan error terkait pengambilan data ringkasan
+  $game_summary_error = ''; 
 
   if (isset($koneksi) && $koneksi instanceof mysqli) {
-      // Ambil DISTINCT provider_code dan game_type untuk memastikan setiap kombinasi unik
+      // Ambil DISTINCT provider_code dari srg_gamelist
       $query_gamelist_data = "SELECT DISTINCT provider_code, game_type FROM srg_gamelist ORDER BY provider_code, game_type";
       $result_gamelist_data = $koneksi->query($query_gamelist_data);
       if ($result_gamelist_data) {
           while ($row = $result_gamelist_data->fetch_assoc()) {
               $gamelist_entries_for_insert[] = [
                   'provider_code' => $row['provider_code'],
-                  'provider_type' => $row['game_type'] // Ini adalah nilai untuk provider_type
+                  'provider_type' => $row['game_type'] 
               ];
           }
           $result_gamelist_data->free();
-      } else {
-          $game_summary_error = "Gagal mengambil jenis game unik dari database: " . htmlspecialchars($koneksi->error);
       }
 
-      // Ambil data ringkasan game per provider/game_type/jumlah game untuk tampilan tabel ringkasan
-      $game_summary_data = []; // Reset atau pastikan ini diisi hanya untuk tampilan
+      // Ambil data ringkasan
+      $game_summary_data = []; 
       $query_summary_for_display = "SELECT game_type, provider_code, COUNT(*) AS total_games FROM srg_gamelist GROUP BY game_type, provider_code ORDER BY game_type, provider_code";
       $result_summary_for_display = $koneksi->query($query_summary_for_display);
       if ($result_summary_for_display) {
@@ -64,80 +50,63 @@
               $game_summary_data[] = $row;
           }
           $result_summary_for_display->free();
-      } else {
-          $game_summary_error .= (!empty($game_summary_error) ? '<br>' : '') . "Gagal mengambil data ringkasan game untuk tampilan: " . htmlspecialchars($koneksi->error);
       }
-
-  } else {
-      $game_summary_error = "Koneksi database tidak valid.";
   }
 
-  // --- Logika Pemanggilan API GameXaAPI dan Update Database ---
+  // --- Logika Pemanggilan API dan Update Database ---
   if (isset($_POST['update_providers_and_db'])) {
       try {
           $response = $gameXaAPI->getGameProviders();
-          $api_providers_map = []; // Map API providers by code for quick lookup
+          $api_providers_map = []; 
 
           if ($response['success'] && isset($response['data']['providers'])) {
               foreach ($response['data']['providers'] as $api_provider) {
-                  // Pastikan provider_code ada sebelum menyimpan ke map
                   if (isset($api_provider['provider_code'])) {
                       $api_providers_map[$api_provider['provider_code']] = $api_provider;
                   }
               }
           } else {
-              $api_error_message = 'Gagal mengambil daftar provider dari API GameXa. Pesan: ' . ($response['message'] ?? 'Tidak diketahui.');
-              $database_message = '<div class="alert alert-danger" role="alert">'.$api_error_message.'</div>';
+              $database_message = '<div class="alert alert-danger">Gagal mengambil daftar provider dari API GameXa.</div>';
           }
 
-          if (isset($koneksi) && $koneksi instanceof mysqli) {
-              $inserted_count = 0;
-              $updated_count = 0;
-              $error_db_count = 0;
+          if (isset($koneksi) && $koneksi instanceof mysqli && empty($database_message)) {
+              $inserted_count = 0; $updated_count = 0; $error_db_count = 0;
 
-              // Gunakan INSERT ... ON DUPLICATE KEY UPDATE karena kita memiliki UNIQUE KEY pada (provider_code, provider_type)
-              $stmt = $koneksi->prepare("INSERT INTO srg_provider (provider_code, provider_name, provider_type, provider_status, provider_image) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE provider_name = VALUES(provider_name), provider_status = VALUES(provider_status), provider_image = VALUES(provider_image), last_updated = CURRENT_TIMESTAMP");
+              // DISESUAIKAN DENGAN NAMA TABEL DI PHPMyAdmin KAMU (game_providers)
+              $stmt = $koneksi->prepare("INSERT INTO game_providers (provider_code, provider_name, status, logo_url, description, updated_at) VALUES (?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE provider_name = VALUES(provider_name), status = VALUES(status), logo_url = VALUES(logo_url), description = VALUES(description), updated_at = NOW()");
 
               if ($stmt === false) {
-                  $database_message = '<div class="alert alert-danger" role="alert"><strong>Kesalahan SQL:</strong> Gagal menyiapkan statement: ' . htmlspecialchars($koneksi->error) . '</div>';
+                  $database_message = '<div class="alert alert-danger"><strong>Kesalahan SQL:</strong> ' . htmlspecialchars($koneksi->error) . '</div>';
               } else {
-                  // Iterasi melalui kombinasi provider_code dan provider_type dari srg_gamelist
                   foreach ($gamelist_entries_for_insert as $entry) {
                       $code = $entry['provider_code'];
-                      $type = $entry['provider_type']; // Tipe diambil langsung dari gamelist
+                      $type = $entry['provider_type']; 
 
-                      $name = 'Unknown Provider'; // Nama default jika tidak ditemukan di API
-                      $status = 'inactive'; // Status default
-                      $image_url = null; // Gambar default
+                      $name = 'Unknown Provider'; 
+                      $status = 'inactive'; 
+                      $image_url = null; 
 
-                      // Coba cocokkan dengan data dari API menggunakan provider_code
                       if (isset($api_providers_map[$code])) {
                           $api_data = $api_providers_map[$code];
-                          // Ambil nama, status, gambar dari API jika ada, jika tidak, gunakan default
                           $name = $api_data['provider_name'] ?? $name;
                           $status = $api_data['status'] ?? $status;
                           $image_url = $api_data['logo_url'] ?? $image_url;
                       }
 
-                      // Sisipkan atau perbarui data
-                      $stmt->bind_param("sssss", $code, $name, $type, $status, $image_url);
+                      $stmt->bind_param("sssss", $code, $name, $status, $image_url, $type);
                       if ($stmt->execute()) {
-                          if ($stmt->affected_rows === 1) $inserted_count++; // Baru dimasukkan
-                          elseif ($stmt->affected_rows === 2) $updated_count++; // Diperbarui
+                          if ($stmt->affected_rows === 1) $inserted_count++; 
+                          elseif ($stmt->affected_rows === 2) $updated_count++; 
                       } else {
                           $error_db_count++;
-                          // Opsional: log $stmt->error for debugging
-                          // error_log("Database error for provider " . $code . " type " . $type . ": " . $stmt->error);
                       }
                   }
                   $stmt->close();
-                  $database_message = '<div class="alert alert-success" role="alert">Proses database selesai. Insert: <strong>'.$inserted_count.'</strong>, Update: <strong>'.$updated_count.'</strong>, Gagal: <strong>'.$error_db_count.'</strong>.</div>';
+                  $database_message = '<div class="alert alert-success">Proses selesai. Insert: <strong>'.$inserted_count.'</strong>, Update: <strong>'.$updated_count.'</strong>, Gagal: <strong>'.$error_db_count.'</strong>.</div>';
               }
-          } else {
-              $database_message = '<div class="alert alert-warning" role="alert"><strong>Peringatan:</strong> Objek koneksi database ($koneksi) tidak ditemukan.</div>';
           }
       } catch (Exception $e) {
-          $database_message = '<div class="alert alert-danger" role="alert">Terjadi kesalahan pada proses API: ' . htmlspecialchars($e->getMessage()) . '</div>';
+          $database_message = '<div class="alert alert-danger">Terjadi kesalahan pada proses API: ' . htmlspecialchars($e->getMessage()) . '</div>';
       }
   }
 
@@ -145,8 +114,8 @@
   $all_db_providers = [];
   $all_db_providers_error = '';
   if (isset($koneksi) && $koneksi instanceof mysqli) {
-      // Mengambil semua data untuk tampilan, termasuk multiple entries per provider_code
-      $query_all_providers = $koneksi->query("SELECT id, provider_code, provider_name, provider_type, provider_status, provider_image FROM srg_provider ORDER BY provider_name ASC, provider_type ASC");
+      // DISESUAIKAN DENGAN TABEL game_providers
+      $query_all_providers = $koneksi->query("SELECT id, provider_code, provider_name, description AS provider_type, status AS provider_status, logo_url AS provider_image FROM game_providers ORDER BY provider_name ASC");
       if ($query_all_providers) {
           while ($row = $query_all_providers->fetch_assoc()) {
               $all_db_providers[] = $row;
@@ -155,16 +124,11 @@
       } else {
           $all_db_providers_error = "Gagal mengambil daftar provider dari database: " . htmlspecialchars($koneksi->error);
       }
-  } else {
-      $all_db_providers_error = "Koneksi database tidak valid.";
   }
-
-  // Bagian tampilan untuk "Ringkasan Game per Provider" tetap sama, karena sudah mengambil dari database.
 ?>
+
 <div class="container-xxl flex-grow-1 container-p-y">
-  <h4 class="py-3 mb-4">
-    <span class="text-muted fw-light">Menu Utama /</span> Daftar Provider GameXa
-  </h4>
+  <h4 class="py-3 mb-4"><span class="text-muted fw-light">Menu Utama /</span> Daftar Provider GameXa</h4>
 
   <div class="row">
     <div class="col-md-12">
@@ -176,15 +140,13 @@
               <button type="submit" name="update_providers_and_db" class="btn btn-primary mb-3">Update & Insert Providers From API to Database</button>
           </form>
 
-          <?php echo $database_message; // Tampilkan pesan status database ?>
+          <?php echo $database_message; ?>
 
           <hr class="my-4" />
 
           <h4>Daftar Semua Provider dari Database:</h4>
           <?php if (!empty($all_db_providers_error)): ?>
-            <div class="alert alert-danger mt-3" role="alert">
-              <strong>Error:</strong> <?php echo htmlspecialchars($all_db_providers_error); ?>
-            </div>
+            <div class="alert alert-danger mt-3" role="alert"><strong>Error:</strong> <?php echo htmlspecialchars($all_db_providers_error); ?></div>
           <?php elseif (!empty($all_db_providers)): ?>
             <div class="table-responsive text-nowrap">
               <table class="table table-bordered">
@@ -231,9 +193,7 @@
           <hr class="my-4" />
           <h4>Ringkasan Game per Provider</h4>
           <?php if (!empty($game_summary_error)): ?>
-            <div class="alert alert-danger mt-3" role="alert">
-              <strong>Error:</strong> <?php echo htmlspecialchars($game_summary_error); ?>
-            </div>
+            <div class="alert alert-danger mt-3" role="alert"><strong>Error:</strong> <?php echo htmlspecialchars($game_summary_error); ?></div>
           <?php elseif (!empty($game_summary_data)): ?>
             <div class="table-responsive text-nowrap">
               <table class="table table-bordered">
@@ -263,6 +223,3 @@
     </div>
   </div>
 </div>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
