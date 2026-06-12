@@ -41,14 +41,18 @@ if(isset($_GET['aksi']) && $_GET['aksi'] == 'bersihkan') {
             <th style="color: white; width: 50px;" class="text-center">NO</th>
             <th style="color: white;">USER / ROLE</th>
             <th style="color: white;">WAKTU</th>
-            <th style="color: white;">IP ADDRESS</th> <th style="color: white;">AKTIVITAS</th>
-            <th style="color: white;" class="text-center">DEVICE</th> </tr>
+            <th style="color: white;">IP ADDRESS</th>
+            <th style="color: white;">AKTIVITAS</th>
+            <th style="color: white; text-align: center;">DEVICE</th>
+          </tr>
         </thead>
         <tbody>
           <?php
+          // Query narik data dari database
           $query_logs = mysqli_query($koneksi, "SELECT * FROM activity_logs ORDER BY id DESC LIMIT 500");
           $no = 1;
           while ($row = mysqli_fetch_assoc($query_logs)) {
+              // Menentukan warna badge role
               $badge = ($row['role'] == 'Admin') ? 'bg-danger' : (($row['role'] == 'Staff') ? 'bg-warning' : 'bg-primary');
               ?>
               <tr style="border-bottom: 1px solid #3c3d56;">
