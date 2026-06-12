@@ -165,7 +165,7 @@
                else if ($halaman_aktif == "provider") {
                 include_once "provider.php";
               }
-                else if ($halaman_aktif == "log_active.php") {
+                else if ($halaman_aktif == "log_active") {
                 include_once "log_active.php";
               }
               include_once "footer.php";
