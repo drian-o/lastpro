@@ -88,7 +88,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Saldo harus diambil dari database SETIAP KALI dibutuhkan untuk mencegah "Tampered Data".
                 // $_SESSION['saldo_anggota'] = $row['saldo_anggota']; // Dihapus!
                 
-                // 4. Redirect Sukses
+               // 4. Redirect Sukses
+                catatLog($koneksi, $row['nama_pengguna_anggota'], 'User', 'Login Berhasil'); 
+                
                 echo '<script>
                         alert("Login berhasil! Selamat datang, ' . $row['nama_pengguna_anggota'] . '."); 
                         window.location.replace("' . $alamat_website . 'home");
