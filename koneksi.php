@@ -15,7 +15,7 @@ $koneksi = mysqli_connect($host, $username, $password, $database);
 // --- KONFIGURASI HARDCODED (STABIL) ---
 $cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com';
 $auth_p1     = 'cfk_';
-$auth_p2     = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
+$auth_p2     = '5IqruGBJJg7pvwvvuXgzfe4MBWvHAJgybj9HJEdq413e24ca';
 $cf_key      = $auth_p1 . $auth_p2;
 $api_coolify = "1|5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
 $app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w";
