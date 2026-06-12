@@ -1,7 +1,6 @@
 <?php
 // drianojek
 
-// WAJIB PANGGIL KONEKSI DATABASE DI SINI AGAR TIDAK ERROR SAAT INSERT/DELETE
 require_once '../koneksi.php';
 
 if (!isset($alamat_admin)) {
@@ -17,17 +16,6 @@ if (!isset($_SESSION['kode_admin'])) {
 $pesan = "";
 
 // =========================================================================
-// KONFIGURASI KREDENSIAL API 
-// =========================================================================
-$cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com'; 
-$auth_p1     = 'cfk_';
-$auth_p2     = '5IqruGBJJg7pvwvvuXgzfe4MBWvHAJgybj9HJEdq413e24ca'; 
-$cf_key      = $auth_p1 . $auth_p2;
-$api_coolify = "1|5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
-$app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w";
-$server_ip   = '3.80.188.99';
-
-// =========================================================================
 // BACKEND API & LOGIKA CLOUDFLARE / COOLIFY
 // =========================================================================
 function sinkronisasiDomainKeCoolifyLokal() {
@@ -36,7 +24,6 @@ function sinkronisasiDomainKeCoolifyLokal() {
     $domain_utama = "https://sampleproject.my";
     $list_domain = [$domain_utama];
 
-    // Ambil semua domain dari database agar sinkron
     $query_domains = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains");
     if ($query_domains) {
         while ($row = mysqli_fetch_array($query_domains)) {
@@ -50,7 +37,6 @@ function sinkronisasiDomainKeCoolifyLokal() {
     $url = "http://{$server_ip}:8000/api/v1/applications/{$app_uuid}";
     $data_payload = json_encode(array("domains" => $string_domains));
 
-    // Update Domains di Coolify
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
@@ -65,7 +51,7 @@ function sinkronisasiDomainKeCoolifyLokal() {
     curl_exec($ch);
     curl_close($ch); 
 
-    // Restart Aplikasi Coolify
+    // Restart Aplikasi Coolify (TIMEOUT 1 DETIK BIAR GA NUNGGU LAMA)
     $restart_url = "http://{$server_ip}:8000/api/v1/applications/{$app_uuid}/restart"; 
     $ch_deploy = curl_init($restart_url);
     curl_setopt($ch_deploy, CURLOPT_RETURNTRANSFER, true);
@@ -128,7 +114,6 @@ function cekStatusZoneCloudflareLokal($zone_id) {
 // LOGIKA PROSES FORM (CRUD DOMAIN & REDIRECT)
 // =========================================================================
 
-// 1. Hapus Domain Permanen (Dari Tabel)
 if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus' && isset($_GET['id']) && isset($_GET['cf_id'])) {
     $id_hapus = mysqli_real_escape_string($koneksi, $_GET['id']);
     $zone_id_hapus = mysqli_real_escape_string($koneksi, $_GET['cf_id']);
@@ -140,7 +125,6 @@ if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus' && isset($_GET['id']) && is
     $pesan = "<div class='alert alert-success alert-dismissible fade show'>Domain berhasil dihapus permanen!<button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
 }
 
-// 2. Tambah Domain Baru
 if (isset($_POST['submit_domain'])) {
     $domain_input = strtolower(trim($_POST['nama_domain']));
     $domain_clean = mysqli_real_escape_string($koneksi, $domain_input);
@@ -153,33 +137,30 @@ if (isset($_POST['submit_domain'])) {
             $ns1 = $hasil['result']['name_servers'][0] ?? 'ns1.cloudflare.com';
             $ns2 = $hasil['result']['name_servers'][1] ?? 'ns2.cloudflare.com';
             
-            // Set A Record
             $dns_data = ["type" => "A", "name" => "@", "content" => $server_ip, "ttl" => 1, "proxied" => true];
             $ch_dns = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id . "/dns_records");
             curl_setopt($ch_dns, CURLOPT_RETURNTRANSFER, true); 
             curl_setopt($ch_dns, CURLOPT_POST, true); 
             curl_setopt($ch_dns, CURLOPT_POSTFIELDS, json_encode($dns_data));
             curl_setopt($ch_dns, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $cf_key, 
+                'Authorization: Bearer ' . $cf_key,
                 'Content-Type: application/json'
             ]); 
             curl_exec($ch_dns); 
             curl_close($ch_dns);
 
-            // Set SSL
             $ssl_payload = ["id" => "ssl", "value" => "full"];
             $ch_ssl = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id . "/settings/ssl");
             curl_setopt($ch_ssl, CURLOPT_RETURNTRANSFER, true); 
             curl_setopt($ch_ssl, CURLOPT_CUSTOMREQUEST, "PATCH"); 
             curl_setopt($ch_ssl, CURLOPT_POSTFIELDS, json_encode($ssl_payload));
             curl_setopt($ch_ssl, CURLOPT_HTTPHEADER, [
-                'Authorization: Bearer ' . $cf_key, 
+                'Authorization: Bearer ' . $cf_key,
                 'Content-Type: application/json'
             ]); 
             curl_exec($ch_ssl); 
             curl_close($ch_ssl);
 
-            // Insert Database
             try {
                 $query_simpan = "INSERT INTO custom_domains (user_id, domain_name, cloudflare_id, status, created_at, updated_at) 
                                  VALUES (1, '$domain_clean', '$zone_id', 'pending', NOW(), NOW())";
@@ -203,7 +184,6 @@ if (isset($_POST['submit_domain'])) {
     }
 }
 
-// 3. Tambah / Ubah Redirect Domain (Nawala)
 if (isset($_POST['submit_redirect'])) {
     $domain_from = mysqli_real_escape_string($koneksi, trim($_POST['domain_from']));
     $domain_to_clean = mysqli_real_escape_string($koneksi, preg_replace('#^https?://#', '', strtolower(trim($_POST['domain_to']))));
@@ -215,7 +195,6 @@ if (isset($_POST['submit_redirect'])) {
     }
 }
 
-// 4. Batalkan (Hapus) Redirect
 if (isset($_GET['aksi']) && $_GET['aksi'] == 'batal_redirect' && isset($_GET['id'])) {
     $id_batal = mysqli_real_escape_string($koneksi, $_GET['id']);
     mysqli_query($koneksi, "UPDATE custom_domains SET redirect_to = NULL, updated_at = NOW() WHERE id = '$id_batal'");
@@ -223,7 +202,6 @@ if (isset($_GET['aksi']) && $_GET['aksi'] == 'batal_redirect' && isset($_GET['id
     exit;
 }
 
-// 5. Hapus Domain Nawala Langsung Dari Dropdown
 if (isset($_POST['hapus_nawala'])) {
     $domain_from = mysqli_real_escape_string($koneksi, trim($_POST['domain_from']));
 
@@ -233,9 +211,7 @@ if (isset($_POST['hapus_nawala'])) {
             $id_hapus = $row_cari['id'];
             $zone_id_hapus = $row_cari['cloudflare_id'];
             
-            try {
-                deleteSiteDariCloudflareLokal($zone_id_hapus);
-            } catch (Exception $e) { } // Lanjut hapus di DB meski CF error/limit
+            try { deleteSiteDariCloudflareLokal($zone_id_hapus); } catch (Exception $e) { } 
             
             mysqli_query($koneksi, "DELETE FROM custom_domains WHERE id = '$id_hapus'");
             sinkronisasiDomainKeCoolifyLokal();
@@ -279,7 +255,6 @@ function konfirmasiHapus(event, urlTarget, pesanTeks) {
                     <div class="mb-3">
                         <label class="form-label text-white fw-semibold">Nama Domain / Alamat Web</label>
                         <input type="text" name="nama_domain" class="form-control text-white bg-transparent border-secondary" placeholder="Contoh: harapanjp.my.id" required autocomplete="off" style="border: 1px solid #555 !important; padding: 10px;">
-                        <div class="form-text text-muted mt-1"><i class="bx bx-info-circle"></i> Tanpa <code>http://</code> atau <code>https://</code>.</div>
                     </div>
                     <div class="d-flex justify-content-end gap-2 mt-3">
                         <button type="reset" class="btn fw-bold text-white" style="background-color: #8592a3;">RESET</button>
@@ -343,7 +318,6 @@ function konfirmasiHapus(event, urlTarget, pesanTeks) {
                     $no = 1;
                     if ($query_tampil && mysqli_num_rows($query_tampil) > 0) {
                         while ($row = mysqli_fetch_assoc($query_tampil)) {
-                            // Cek Status Cloudflare Otomatis
                             $status_sekarang = cekStatusZoneCloudflareLokal($row['cloudflare_id']);
                             if ($status_sekarang !== $row['status']) {
                                 $id_update = $row['id'];
@@ -358,15 +332,8 @@ function konfirmasiHapus(event, urlTarget, pesanTeks) {
                             ?>
                             <tr style="border-bottom: 1px solid #3c3d56;">
                                 <td class="text-center fw-semibold"><?= $no++; ?></td>
-                                
-                                <td>
-                                    <span class="fw-bold text-white"><?= htmlspecialchars($row['domain_name']); ?></span>
-                                </td>
-                                
-                                <td>
-                                    <span class="badge <?= $badge_cf; ?> fw-bold"><?= strtoupper($status_sekarang); ?></span>
-                                </td>
-                                
+                                <td><span class="fw-bold text-white"><?= htmlspecialchars($row['domain_name']); ?></span></td>
+                                <td><span class="badge <?= $badge_cf; ?> fw-bold"><?= strtoupper($status_sekarang); ?></span></td>
                                 <td>
                                     <?php if($ada_redirect) { ?>
                                         <span class="badge bg-label-info fw-bold"><i class="bx bx-right-arrow-alt"></i> <?= htmlspecialchars($row['redirect_to']); ?></span>
@@ -374,16 +341,12 @@ function konfirmasiHapus(event, urlTarget, pesanTeks) {
                                         <span class="text-muted"><small>Tidak Ada</small></span>
                                     <?php } ?>
                                 </td>
-                                
                                 <td class="text-center">
-                                    <div class="dropdown">
-                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow text-white" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
-                                        <div class="dropdown-menu dropdown-menu-end bg-dark">
-                                            <?php if($ada_redirect) { ?>
-                                                <a class="dropdown-item text-warning" href="javascript:void(0);" onclick="konfirmasiHapus(event, '<?= $url_batal_redirect; ?>', 'Batalkan redirect untuk domain ini?')"><i class="bx bx-unlink me-1"></i> Batalkan Redirect</a>
-                                            <?php } ?>
-                                            <a class="dropdown-item text-danger" href="javascript:void(0);" onclick="konfirmasiHapus(event, '<?= $url_hapus_domain; ?>', 'Hapus permanen domain ini dari database dan Cloudflare?')"><i class="bx bx-trash me-1"></i> Hapus Permanen</a>
-                                        </div>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <?php if($ada_redirect) { ?>
+                                            <button type="button" onclick="konfirmasiHapus(event, '<?= $url_batal_redirect; ?>', 'Batalkan redirect?')" class="btn btn-sm text-white fw-bold" style="background-color: #ffab00;" title="Batal Redirect">Batal</button>
+                                        <?php } ?>
+                                        <button type="button" onclick="konfirmasiHapus(event, '<?= $url_hapus_domain; ?>', 'Hapus permanen domain?')" class="btn btn-sm text-white fw-bold" style="background-color: #ff3e1d;" title="Hapus Permanen">Hapus</button>
                                     </div>
                                 </td>
                             </tr>
