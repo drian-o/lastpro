@@ -12,7 +12,7 @@ $database = "default";
 
 $koneksi = mysqli_connect($host, $username, $password, $database);
 
-// --- KONFIGURASI (Hardcoded agar STABIL di Coolify) ---
+// --- KONFIGURASI HARDCODED (STABIL) ---
 define('CF_EMAIL', getenv('CF_EMAIL'));
 define('CF_KEY', getenv('CF_GLOBAL_KEY'));
 define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
@@ -23,32 +23,30 @@ define('COOLIFY_URL', 'http://3.80.188.99:8000');
 if ($koneksi) {
     include_once __DIR__ . '/fungsi_umum.php';
     
-    // --- QUERY PENGATURAN (JANGAN SAMPE ILANG) ---
-    $queries = [
-        'judul_web', 'deskripsi_web', 'kata_kunci_web', 'link_apk_web', 'logo_web', 'favicon_web', 
-        'teks_berjalan_web', 'facebook_web', 'telegram_web', 'popup_pengumuman_web', 'link_livechat_web',
-        'popup_teks_belum_login_web', 'popup_teks_tidak_ada_saldo_web', 'popup_teks_ada_saldo_web',
-        'popup_teks_setelah_deposit_web', 'popup_teks_setelah_withdraw_web', 'rtp_web', 'bg_1_web',
-        'bg_2_web', 'bg_3_web', 'script_livechat_web', 'whatsapp_web', 'bg_gradient_1_web',
-        'bg_gradient_2_web', 'bg_gradient_3_web', 'bg_gradient_4_web', 'bg_gradient_5_web',
-        'qris_web', 'bg_head_dekstop'
-    ];
+    // --- FIX BUG MOBILE: Sesi nempel terus ---
+    session_set_cookie_params([
+        'lifetime' => 86400,
+        'path' => '/',
+        'secure' => true,      // HTTPS wajib
+        'httponly' => true,
+        'samesite' => 'None'   // Ini biar mobile browser nggak nendang sesi lu
+    ]);
+
+    if (session_status() == PHP_SESSION_NONE) { session_start(); }
+
+    // --- QUERY PENGATURAN (LENGKAP) ---
+    $queries = ['judul_web', 'deskripsi_web', 'kata_kunci_web', 'link_apk_web', 'logo_web', 'favicon_web', 'teks_berjalan_web', 'facebook_web', 'telegram_web', 'popup_pengumuman_web', 'link_livechat_web', 'popup_teks_belum_login_web', 'popup_teks_tidak_ada_saldo_web', 'popup_teks_ada_saldo_web', 'popup_teks_setelah_deposit_web', 'popup_teks_setelah_withdraw_web', 'rtp_web', 'bg_1_web', 'bg_2_web', 'bg_3_web', 'script_livechat_web', 'whatsapp_web', 'bg_gradient_1_web', 'bg_gradient_2_web', 'bg_gradient_3_web', 'bg_gradient_4_web', 'bg_gradient_5_web', 'qris_web', 'bg_head_dekstop'];
 
     foreach ($queries as $q) {
         $res = mysqli_query($koneksi, "SELECT * FROM pengaturan WHERE nama_pengaturan = '$q'");
         $data = mysqli_fetch_array($res);
-        $var_id = "id_" . $q;
-        $var_i1 = "isi_1_" . $q;
-        $var_i2 = "isi_2_" . $q;
-        $var_i3 = "isi_3_" . $q;
-        $$var_id = $data['id_pengaturan'] ?? '';
-        $$var_i1 = $data['isi_1_pengaturan'] ?? '';
-        $$var_i2 = $data['isi_2_pengaturan'] ?? '';
-        $$var_i3 = $data['isi_3_pengaturan'] ?? '';
+        ${"id_" . $q} = $data['id_pengaturan'] ?? '';
+        ${"isi_1_" . $q} = $data['isi_1_pengaturan'] ?? '';
+        ${"isi_2_" . $q} = $data['isi_2_pengaturan'] ?? '';
+        ${"isi_3_" . $q} = $data['isi_3_pengaturan'] ?? '';
     }
 
-    if (session_status() == PHP_SESSION_NONE) { session_start(); }
-
+    // --- SENSOR AKTIVITAS LOG ---
     if (!function_exists('catatLog')) {
         function catatLog($koneksi, $username, $role, $activity) {
             $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
@@ -78,7 +76,9 @@ if ($koneksi) {
             $role_aktif = 'User';
         }
 
-        catatLog($koneksi, $user_aktif, $role_aktif, "Mengakses: " . $url);
+        if ($user_aktif !== 'Guest') {
+            catatLog($koneksi, $user_aktif, $role_aktif, "Mengakses: " . $url);
+        }
     }
 } else {
     echo "Database Error";
