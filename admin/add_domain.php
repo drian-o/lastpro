@@ -1,10 +1,6 @@
 <?php
 // drianojek
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
 // WAJIB PANGGIL KONEKSI DATABASE DI SINI AGAR TIDAK ERROR SAAT INSERT/DELETE
 require_once '../koneksi.php';
 
@@ -74,7 +70,7 @@ function sinkronisasiDomainKeCoolifyLokal() {
     $ch_deploy = curl_init($restart_url);
     curl_setopt($ch_deploy, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch_deploy, CURLOPT_CUSTOMREQUEST, "POST"); 
-    curl_setopt($ch_deploy, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch_deploy, CURLOPT_TIMEOUT, 1);
     curl_setopt($ch_deploy, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch_deploy, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch_deploy, CURLOPT_HTTPHEADER, [
