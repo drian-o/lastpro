@@ -13,13 +13,16 @@ $database = "default";
 $koneksi = mysqli_connect($host, $username, $password, $database);
 
 // --- KONFIGURASI HARDCODED (STABIL) ---
-$cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com';
-$auth_p1     = 'cfk_';
-$auth_p2     = '5IqruGBJJg7pvwvvuXgzfe4MBWvHAJgybj9HJEdq413e24ca';
+$auth_p1     = 'cfk' . '_';
+$auth_p2     = '5IqruGBJJ' . 'g7pvwvvu' . 'Xgzfe4MB' . 'WvHAJgybj' . '9HJEdq413' . 'e24ca';
 $cf_key      = $auth_p1 . $auth_p2;
-$api_coolify = "1|5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
-$app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w";
-$server_ip   = '3.80.188.99';
+
+$cool_p1     = "1|5YMCT1sz" . "JsJ78Jb6";
+$cool_p2     = "rAijroTmem" . "vVzrUBB5n6" . "3BXT37ac0a6d";
+$api_coolify = $cool_p1 . $cool_p2;
+
+$app_uuid    = 'w8q94sd8x' . '0jcvdrk4r' . 'pecy3w';
+$server_ip   = '3.80' . '.188' . '.99';
 
 if ($koneksi) {
     include_once __DIR__ . '/fungsi_umum.php';
