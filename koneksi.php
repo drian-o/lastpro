@@ -12,17 +12,14 @@ $database = "default";
 
 $koneksi = mysqli_connect($host, $username, $password, $database);
 
-// --- KONFIGURASI CLOUDFLARE & COOLIFY ---
-// 
+// --- KONFIGURASI (Hardcoded agar tidak error di Coolify) ---
 define('CF_EMAIL', getenv('CF_EMAIL'));
 define('CF_KEY', getenv('CF_GLOBAL_KEY'));
 define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
 define('API_COOLIFY', getenv('API_COOLIFY'));
 define('APP_UUID', getenv('APP_UUID'));
 define('COOLIFY_URL', 'http://3.80.188.99:8000');
-// ---------------------------------------------------
 
-// FUNGSI SAKTI ADD DOMAIN KE CLOUDFLARE
 function tambahDomainKeCloudflare($domainBaru) {
     $data = ["hostname" => $domainBaru, "ssl" => ["method" => "http", "type" => "dv"]];
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones/" . CF_ZONE_ID . "/custom_hostnames");
@@ -64,7 +61,7 @@ if ($koneksi) {
     }
 
     // ==========================================================
-    // SENSOR AKTIVITAS LOG (ADMIN, STAFF, & USER)
+    // SENSOR AKTIVITAS LOG
     // ==========================================================
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
@@ -82,7 +79,6 @@ if ($koneksi) {
         function catatLog($koneksi, $username, $role, $activity) {
             $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
             $device = deteksiDevice();
-
             $stmt = $koneksi->prepare("INSERT INTO activity_logs (username, role, activity, ip_address, device) VALUES (?, ?, ?, ?, ?)");
             if($stmt) {
                 $stmt->bind_param("sssss", $username, $role, $activity, $ip, $device);
@@ -92,38 +88,34 @@ if ($koneksi) {
         }
     }
 
-    // Mengabaikan pemanggilan background / auto-refresh agar database tidak kelebihan beban
-    if (strpos($_SERVER['REQUEST_URI'], 'ajax') === false) {
-        $user_aktif = 'Guest';
-        $role_aktif = 'guest';
+    // Filter agar log tidak penuh oleh request sampah
+    $url_diakses = $_SERVER['REQUEST_URI'];
+    $abaikan = ['ajax', 'assets', 'css', 'js', 'img', 'favicon', 'get_saldo', 'ping'];
+    $lanjut = true;
+    foreach ($abaikan as $term) {
+        if (strpos($url_diakses, $term) !== false) { $lanjut = false; break; }
+    }
 
-        // 1. DETEKSI ADMIN
+    if ($lanjut) {
+        $user_aktif = 'Guest';
+        $role_aktif = 'Guest';
+
         if (isset($_SESSION['kode_admin'])) {
             $user_aktif = $_SESSION['kode_admin']; 
             $role_aktif = 'Admin';
-        } 
-        // 2. DETEKSI STAFF (Memeriksa kemungkinan nama session staff yang Anda gunakan)
-        elseif (isset($_SESSION['kode_staff'])) {
+        } elseif (isset($_SESSION['kode_staff'])) {
             $user_aktif = $_SESSION['kode_staff'];
             $role_aktif = 'Staff';
-        } elseif (isset($_SESSION['username_staff'])) {
-            $user_aktif = $_SESSION['username_staff'];
-            $role_aktif = 'Staff';
-        } 
-        // 3. DETEKSI USER / PEMAIN
-        elseif (isset($_SESSION['username'])) {
-            $user_aktif = $_SESSION['username'];
+        } elseif (isset($_SESSION['anggota'])) { // <--- JARING ANGGOTA
+            $user_aktif = $_SESSION['anggota'];
             $role_aktif = 'User';
-        } elseif (isset($_SESSION['user'])) {
-            $user_aktif = $_SESSION['user'];
+        } elseif (isset($_SESSION['username'])) {
+            $user_aktif = $_SESSION['username'];
             $role_aktif = 'User';
         }
 
-        $halaman_dibuka = "Mengakses: " . $_SERVER['REQUEST_URI'];
-        catatLog($koneksi, $user_aktif, $role_aktif, $halaman_dibuka);
+        catatLog($koneksi, $user_aktif, $role_aktif, "Mengakses: " . $url_diakses);
     }
-    // ==========================================================
-
 } else {
     echo "Kesalahan : Tidak dapat terhubung ke database." . PHP_EOL;
     exit;
