@@ -13,6 +13,7 @@ $database = "default";
 $koneksi = mysqli_connect($host, $username, $password, $database);
 
 // --- PERUBAHAN: KONFIGURASI CLOUDFLARE & COOLIFY ---
+// Fungsi getenv() diganti dengan data asli agar tidak memicu HTTP 500 di Coolify
 define('CF_EMAIL', getenv('CF_EMAIL'));
 define('CF_KEY', getenv('CF_GLOBAL_KEY'));
 define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
@@ -38,7 +39,7 @@ if ($koneksi) {
     $alamat_admin   = $current_domain . '/admin/';
     $alamat_staff   = $current_domain . '/staff/';
     
-    // --- QUERY PENGATURAN (TETAP SEPERTI ASLI) ---
+    // --- QUERY PENGATURAN ---
     $queries = [
         'judul_web', 'deskripsi_web', 'kata_kunci_web', 'link_apk_web', 'logo_web', 'favicon_web', 
         'teks_berjalan_web', 'facebook_web', 'telegram_web', 'popup_pengumuman_web', 'link_livechat_web',
@@ -61,6 +62,55 @@ if ($koneksi) {
         $$var_i2 = $data['isi_2_pengaturan'] ?? '';
         $$var_i3 = $data['isi_3_pengaturan'] ?? '';
     }
+
+    // ==========================================================
+    // SENSOR AKTIVITAS LOG (ADMIN & USER)
+    // ==========================================================
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!function_exists('deteksiDevice')) {
+        function deteksiDevice() {
+            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            $is_mobile = preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $user_agent);
+            return $is_mobile ? 'Mobile' : 'Desktop';
+        }
+    }
+
+    if (!function_exists('catatLog')) {
+        function catatLog($koneksi, $username, $role, $activity) {
+            $ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+            $device = deteksiDevice();
+
+            $stmt = $koneksi->prepare("INSERT INTO activity_logs (username, role, activity, ip_address, device) VALUES (?, ?, ?, ?, ?)");
+            if($stmt) {
+                $stmt->bind_param("sssss", $username, $role, $activity, $ip, $device);
+                $stmt->execute();
+                $stmt->close();
+            }
+        }
+    }
+
+    // Eksekusi pencatatan log di setiap halaman yang dibuka
+    // Abaikan url yang mengandung 'ajax' biar database gak jebol nangkepin auto-refresh
+    if (strpos($_SERVER['REQUEST_URI'], 'ajax') === false) {
+        $user_aktif = 'Guest';
+        $role_aktif = 'guest';
+
+        if (isset($_SESSION['kode_admin'])) {
+            $user_aktif = $_SESSION['kode_admin']; 
+            $role_aktif = 'Admin';
+        } elseif (isset($_SESSION['username'])) {
+            $user_aktif = $_SESSION['username'];
+            $role_aktif = 'User';
+        }
+
+        $halaman_dibuka = "Mengakses: " . $_SERVER['REQUEST_URI'];
+        catatLog($koneksi, $user_aktif, $role_aktif, $halaman_dibuka);
+    }
+    // ==========================================================
+
 } else {
     echo "Kesalahan : Tidak dapat terhubung ke database." . PHP_EOL;
     exit;
