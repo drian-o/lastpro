@@ -23,9 +23,9 @@ $pesan = "";
 // =========================================================================
 // KONFIGURASI KREDENSIAL API 
 // =========================================================================
-$cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com';
+$cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com'; 
 $auth_p1     = 'cfk_';
-$auth_p2     = '5IqruGBJJg7pvwvvuXgzfe4MBWvHAJgybj9HJEdq413e24ca';
+$auth_p2     = '5IqruGBJJg7pvwvvuXgzfe4MBWvHAJgybj9HJEdq413e24ca'; 
 $cf_key      = $auth_p1 . $auth_p2;
 $api_coolify = "1|5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
 $app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w";
@@ -85,7 +85,7 @@ function sinkronisasiDomainKeCoolifyLokal() {
 }
 
 function tambahSiteBaruCloudflareLokal($domainBaru) {
-    global $cf_email, $cf_key;
+    global $cf_key;
     $data = ["name" => $domainBaru, "jump_start" => true];
 
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones");
@@ -93,8 +93,7 @@ function tambahSiteBaruCloudflareLokal($domainBaru) {
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'X-Auth-Email: ' . $cf_email,
-        'X-Auth-Key: ' . $cf_key,
+        'Authorization: Bearer ' . $cf_key,
         'Content-Type: application/json'
     ]);
     $response = curl_exec($ch);
@@ -103,13 +102,12 @@ function tambahSiteBaruCloudflareLokal($domainBaru) {
 }
 
 function deleteSiteDariCloudflareLokal($zone_id) {
-    global $cf_email, $cf_key;
+    global $cf_key;
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'X-Auth-Email: ' . $cf_email,
-        'X-Auth-Key: ' . $cf_key,
+        'Authorization: Bearer ' . $cf_key,
         'Content-Type: application/json'
     ]);
     curl_exec($ch);
@@ -117,12 +115,11 @@ function deleteSiteDariCloudflareLokal($zone_id) {
 }
 
 function cekStatusZoneCloudflareLokal($zone_id) {
-    global $cf_email, $cf_key;
+    global $cf_key;
     $ch = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'X-Auth-Email: ' . $cf_email,
-        'X-Auth-Key: ' . $cf_key,
+        'Authorization: Bearer ' . $cf_key,
         'Content-Type: application/json'
     ]);
     $response = curl_exec($ch);
@@ -135,7 +132,7 @@ function cekStatusZoneCloudflareLokal($zone_id) {
 // LOGIKA PROSES FORM (CRUD DOMAIN & REDIRECT)
 // =========================================================================
 
-// 1. Hapus Domain Permanen
+// 1. Hapus Domain Permanen (Dari Tabel)
 if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus' && isset($_GET['id']) && isset($_GET['cf_id'])) {
     $id_hapus = mysqli_real_escape_string($koneksi, $_GET['id']);
     $zone_id_hapus = mysqli_real_escape_string($koneksi, $_GET['cf_id']);
@@ -160,18 +157,33 @@ if (isset($_POST['submit_domain'])) {
             $ns1 = $hasil['result']['name_servers'][0] ?? 'ns1.cloudflare.com';
             $ns2 = $hasil['result']['name_servers'][1] ?? 'ns2.cloudflare.com';
             
-            // Set A Record & SSL
+            // Set A Record
             $dns_data = ["type" => "A", "name" => "@", "content" => $server_ip, "ttl" => 1, "proxied" => true];
             $ch_dns = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id . "/dns_records");
-            curl_setopt($ch_dns, CURLOPT_RETURNTRANSFER, true); curl_setopt($ch_dns, CURLOPT_POST, true); curl_setopt($ch_dns, CURLOPT_POSTFIELDS, json_encode($dns_data));
-            curl_setopt($ch_dns, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key, 'Content-Type: application/json']); curl_exec($ch_dns); curl_close($ch_dns);
+            curl_setopt($ch_dns, CURLOPT_RETURNTRANSFER, true); 
+            curl_setopt($ch_dns, CURLOPT_POST, true); 
+            curl_setopt($ch_dns, CURLOPT_POSTFIELDS, json_encode($dns_data));
+            curl_setopt($ch_dns, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $cf_key, 
+                'Content-Type: application/json'
+            ]); 
+            curl_exec($ch_dns); 
+            curl_close($ch_dns);
 
+            // Set SSL
             $ssl_payload = ["id" => "ssl", "value" => "full"];
             $ch_ssl = curl_init("https://api.cloudflare.com/client/v4/zones/" . $zone_id . "/settings/ssl");
-            curl_setopt($ch_ssl, CURLOPT_RETURNTRANSFER, true); curl_setopt($ch_ssl, CURLOPT_CUSTOMREQUEST, "PATCH"); curl_setopt($ch_ssl, CURLOPT_POSTFIELDS, json_encode($ssl_payload));
-            curl_setopt($ch_ssl, CURLOPT_HTTPHEADER, ['X-Auth-Email: '.$cf_email, 'X-Auth-Key: '.$cf_key, 'Content-Type: application/json']); curl_exec($ch_ssl); curl_close($ch_ssl);
+            curl_setopt($ch_ssl, CURLOPT_RETURNTRANSFER, true); 
+            curl_setopt($ch_ssl, CURLOPT_CUSTOMREQUEST, "PATCH"); 
+            curl_setopt($ch_ssl, CURLOPT_POSTFIELDS, json_encode($ssl_payload));
+            curl_setopt($ch_ssl, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer ' . $cf_key, 
+                'Content-Type: application/json'
+            ]); 
+            curl_exec($ch_ssl); 
+            curl_close($ch_ssl);
 
-            // Insert Database dengan Try-Catch
+            // Insert Database
             try {
                 $query_simpan = "INSERT INTO custom_domains (user_id, domain_name, cloudflare_id, status, created_at, updated_at) 
                                  VALUES (1, '$domain_clean', '$zone_id', 'pending', NOW(), NOW())";
@@ -213,6 +225,28 @@ if (isset($_GET['aksi']) && $_GET['aksi'] == 'batal_redirect' && isset($_GET['id
     mysqli_query($koneksi, "UPDATE custom_domains SET redirect_to = NULL, updated_at = NOW() WHERE id = '$id_batal'");
     echo "<script>window.location.href='?halaman=tambah_domain';</script>"; 
     exit;
+}
+
+// 5. Hapus Domain Nawala Langsung Dari Dropdown
+if (isset($_POST['hapus_nawala'])) {
+    $domain_from = mysqli_real_escape_string($koneksi, trim($_POST['domain_from']));
+
+    if (!empty($domain_from)) {
+        $q_cari = mysqli_query($koneksi, "SELECT id, cloudflare_id FROM custom_domains WHERE domain_name = '$domain_from'");
+        if ($row_cari = mysqli_fetch_assoc($q_cari)) {
+            $id_hapus = $row_cari['id'];
+            $zone_id_hapus = $row_cari['cloudflare_id'];
+            
+            try {
+                deleteSiteDariCloudflareLokal($zone_id_hapus);
+            } catch (Exception $e) { } // Lanjut hapus di DB meski CF error/limit
+            
+            mysqli_query($koneksi, "DELETE FROM custom_domains WHERE id = '$id_hapus'");
+            sinkronisasiDomainKeCoolifyLokal();
+            
+            $pesan = "<div class='alert alert-success alert-dismissible fade show'>Domain Nawala <strong>$domain_from</strong> berhasil dihapus permanen!<button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
+        }
+    }
 }
 ?>
 
@@ -283,7 +317,8 @@ function konfirmasiHapus(event, urlTarget, pesanTeks) {
                         <label class="form-label text-white fw-semibold">Arahkan Ke (Domain Aktif)</label>
                         <input type="text" name="domain_to" class="form-control text-white bg-transparent border-secondary" placeholder="Contoh: harapanbaru.com" required autocomplete="off" style="border: 1px solid #555 !important; padding: 10px;">
                     </div>
-                    <div class="d-flex justify-content-end mt-3">
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="submit" name="hapus_nawala" formnovalidate class="btn text-white fw-bold" style="background-color: #ff3e1d;" onclick="return confirm('Yakin ingin menghapus permanen domain yang diblokir ini?')"><i class="bx bx-trash me-1"></i> HAPUS DOMAIN</button>
                         <button type="submit" name="submit_redirect" class="btn text-white fw-bold" style="background-color: #ffab00;"><i class="bx bx-transfer me-1"></i> SIMPAN REDIRECT</button>
                     </div>
                 </form>
