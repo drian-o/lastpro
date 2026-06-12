@@ -1,19 +1,8 @@
 <?php
 // --- SETUP SESSION AGAR STABIL DI MOBILE ---
 $host = $_SERVER['HTTP_HOST'];
-session_set_cookie_params([
-    'lifetime' => 86400 * 7, 
-    'path' => '/',
-    'domain' => (strpos($host, 'www.') === 0) ? substr($host, 4) : $host,
-    'secure' => isset($_SERVER['HTTPS']), // Pastikan web lu HTTPS
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
-
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
+session_set_cookie_params(['lifetime'=>604800,'path'=>'/','domain'=>(strpos($host,'www.')===0?substr($host,4):$host),'secure'=>isset($_SERVER['HTTPS']),'httponly'=>true,'samesite'=>'Lax']);
+if(session_status()==PHP_SESSION_NONE){session_start();}
 include_once 'koneksi.php';
 
 // ==========================================
