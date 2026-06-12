@@ -1,3 +1,9 @@
+<?php 
+  // Menangkap nama halaman yang sedang aktif biar menu sidebar bisa nyala (highlight) otomatis
+  // Disesuaikan: bisa menangkap dari parameter ?halaman=... atau dari nama file .php nya langsung
+  $page_active = isset($_GET['halaman']) ? $_GET['halaman'] : basename($_SERVER['PHP_SELF'], ".php");
+?>
+
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
   <div class="app-brand demo">
     <a href="<?php echo $alamat_admin.'dasbor'; ?>" class="app-brand-link">
@@ -16,30 +22,30 @@
   <div class="menu-inner-shadow"></div>
   <ul class="menu-inner py-1">
     
-    <li class="menu-item" id="dasbor">
+    <li class="menu-item <?php echo ($page_active == 'dasbor') ? 'active' : ''; ?>" id="dasbor">
       <a href="<?php echo $alamat_admin.'dasbor'; ?>" class="menu-link">
         <i class="menu-icon tf-icons mdi mdi-monitor-dashboard"></i>
         <div>Dasbor</div>
       </a>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item <?php echo in_array($page_active, ['provider', 'permainan', 'anggota']) ? 'active open' : ''; ?>">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons mdi mdi-database-outline"></i>
         <div>Master Data</div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item" id="provider">
+        <li class="menu-item <?php echo ($page_active == 'provider') ? 'active' : ''; ?>" id="provider">
           <a href="<?php echo $alamat_admin.'provider'; ?>" class="menu-link">
             <div>Provider</div>
           </a>
         </li>
-        <li class="menu-item" id="permainan">
+        <li class="menu-item <?php echo ($page_active == 'permainan') ? 'active' : ''; ?>" id="permainan">
           <a href="<?php echo $alamat_admin.'permainan'; ?>" class="menu-link">
             <div>Permainan</div>
           </a>
         </li> 
-        <li class="menu-item" id="anggota">
+        <li class="menu-item <?php echo ($page_active == 'anggota') ? 'active' : ''; ?>" id="anggota">
           <a href="<?php echo $alamat_admin.'anggota'; ?>" class="menu-link">
             <div>Anggota</div>
           </a>
@@ -47,33 +53,33 @@
       </ul>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item <?php echo in_array($page_active, ['deposit', 'withdraw', 'rekap', 'saldo', 'rekening']) ? 'active open' : ''; ?>">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons mdi mdi-wallet-outline"></i>
         <div>Keuangan</div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item" id="deposit">
+        <li class="menu-item <?php echo ($page_active == 'deposit') ? 'active' : ''; ?>" id="deposit">
           <a href="<?php echo $alamat_admin.'deposit'; ?>" class="menu-link">
             <div>Deposit</div>
           </a>
         </li>
-        <li class="menu-item" id="withdraw">
+        <li class="menu-item <?php echo ($page_active == 'withdraw') ? 'active' : ''; ?>" id="withdraw">
           <a href="<?php echo $alamat_admin.'withdraw'; ?>" class="menu-link">
             <div>Withdraw</div>
           </a>
         </li>
-        <li class="menu-item" id="rekap">
+        <li class="menu-item <?php echo ($page_active == 'rekap') ? 'active' : ''; ?>" id="rekap">
           <a href="<?php echo $alamat_admin.'rekap'; ?>" class="menu-link">
             <div>Rekap</div>
           </a>
         </li>
-        <li class="menu-item" id="saldo">
+        <li class="menu-item <?php echo ($page_active == 'saldo') ? 'active' : ''; ?>" id="saldo">
           <a href="<?php echo $alamat_admin.'saldo'; ?>" class="menu-link">
             <div>Saldo</div>
           </a>
         </li>
-        <li class="menu-item" id="rekening">
+        <li class="menu-item <?php echo ($page_active == 'rekening') ? 'active' : ''; ?>" id="rekening">
           <a href="<?php echo $alamat_admin.'rekening'; ?>" class="menu-link">
             <div>Rekening</div>
           </a>
@@ -81,28 +87,28 @@
       </ul>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item <?php echo in_array($page_active, ['promosi', 'bonus', 'refferal', 'bukti_jp']) ? 'active open' : ''; ?>">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons mdi mdi-bullhorn-outline"></i>
         <div>Pemasaran & Event</div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item" id="promosi">
+        <li class="menu-item <?php echo ($page_active == 'promosi') ? 'active' : ''; ?>" id="promosi">
           <a href="<?php echo $alamat_admin.'promosi'; ?>" class="menu-link">
             <div>Promosi</div>
           </a>
         </li>
-        <li class="menu-item" id="bonus">
+        <li class="menu-item <?php echo ($page_active == 'bonus') ? 'active' : ''; ?>" id="bonus">
           <a href="<?php echo $alamat_admin.'bonus'; ?>" class="menu-link">
             <div>Bonus</div>
           </a>
         </li>
-        <li class="menu-item" id="refferal">
+        <li class="menu-item <?php echo ($page_active == 'refferal') ? 'active' : ''; ?>" id="refferal">
           <a href="<?php echo $alamat_admin.'refferal'; ?>" class="menu-link">
             <div>Refferal</div>
           </a>
         </li>
-        <li class="menu-item" id="bukti_jp">
+        <li class="menu-item <?php echo ($page_active == 'bukti_jp') ? 'active' : ''; ?>" id="bukti_jp">
           <a href="<?php echo $alamat_admin.'bukti_jp'; ?>" class="menu-link">
             <div>Bukti JP</div>
           </a>
@@ -110,23 +116,23 @@
       </ul>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item <?php echo in_array($page_active, ['add_domain', 'tambah_domain', 'ikon_mengambang', 'pemberitahuan']) ? 'active open' : ''; ?>">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons mdi mdi-web"></i>
         <div>Manajemen Web</div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item" id="add_domain"> 
+        <li class="menu-item <?php echo ($page_active == 'add_domain' || $page_active == 'tambah_domain') ? 'active' : ''; ?>" id="add_domain"> 
           <a href="<?php echo $alamat_admin.'add_domain'; ?>" class="menu-link">
             <div>Tambah Domain</div>
           </a>
         </li>
-        <li class="menu-item" id="ikon_mengambang">
+        <li class="menu-item <?php echo ($page_active == 'ikon_mengambang') ? 'active' : ''; ?>" id="ikon_mengambang">
           <a href="<?php echo $alamat_admin.'ikon_mengambang'; ?>" class="menu-link">
             <div>Ikon Mengambang</div>
           </a>
         </li>
-        <li class="menu-item" id="pemberitahuan">
+        <li class="menu-item <?php echo ($page_active == 'pemberitahuan') ? 'active' : ''; ?>" id="pemberitahuan">
           <a href="<?php echo $alamat_admin.'pemberitahuan'; ?>" class="menu-link">
             <div>Pemberitahuan</div>
           </a>
@@ -134,23 +140,23 @@
       </ul>
     </li>
 
-    <li class="menu-item">
+    <li class="menu-item <?php echo in_array($page_active, ['staff', 'profil', 'pengaturan']) ? 'active open' : ''; ?>">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons mdi mdi-cog-outline"></i>
         <div>Sistem & Akses</div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item" id="staff">
+        <li class="menu-item <?php echo ($page_active == 'staff') ? 'active' : ''; ?>" id="staff">
           <a href="<?php echo $alamat_admin.'staff'; ?>" class="menu-link">
             <div>Staff</div>
           </a>
         </li>
-        <li class="menu-item" id="profil">
+        <li class="menu-item <?php echo ($page_active == 'profil') ? 'active' : ''; ?>" id="profil">
           <a href="<?php echo $alamat_admin.'profil'; ?>" class="menu-link">
             <div>Profil</div>
           </a>
         </li>
-        <li class="menu-item" id="pengaturan">
+        <li class="menu-item <?php echo ($page_active == 'pengaturan') ? 'active' : ''; ?>" id="pengaturan">
           <a href="<?php echo $alamat_admin.'pengaturan'; ?>" class="menu-link">
             <div>Pengaturan</div>
           </a>
