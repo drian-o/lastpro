@@ -1,23 +1,23 @@
 <?php
-// 1. PENGAMAN SESI (PENTING: Harus paling atas!)
+// 1. Mulai Sesi
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. CEK APAKAH USER SUDAH LOGIN
-// Pastikan nama sesi ini sama dengan yang lu set di login_proses.php
-$sudah_login = isset($_SESSION['nama_pengguna_anggota']);
-
-// 3. LOGIKA REDIRECT PINTAR
-// Kalau belum login DAN dia lagi nggak di halaman login, baru tendang.
-// Ganti 'auth-login' sesuai nama file login lu yang asli.
+// 2. TENTUKAN FILE LOGIN
+// Ganti 'auth-login' dengan nama file login asli lu (misal: 'login.php')
 $halaman_login = 'auth-login'; 
-if (!$sudah_login && basename($_SERVER['PHP_SELF']) !== $halaman_login . '.php') {
+
+// 3. CEK LOGIN (Hanya jika bukan di halaman login)
+// Kita cuma ngecek kalau dia buka file selain login.php
+$file_ini = basename($_SERVER['PHP_SELF']);
+
+if (!isset($_SESSION['nama_pengguna_anggota']) && $file_ini !== $halaman_login . '.php') {
     header("Location: " . $halaman_login);
     exit();
 }
 
-// Lanjut include file lainnya
+// 4. INCLUDE KONEKSI SETELAH SESI AMAN
 include_once 'koneksi.php'; 
 include_once 'header.php'; 
 include_once 'carousel_slider.php'; 
