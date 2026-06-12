@@ -1,6 +1,7 @@
 <?php
 // drianojek
 
+// Kunci API udah otomatis ditarik dari koneksi.php
 require_once '../koneksi.php';
 
 if (!isset($alamat_admin)) {
@@ -19,21 +20,11 @@ $pesan = "";
 // BACKEND API & LOGIKA CLOUDFLARE / COOLIFY
 // =========================================================================
 function sinkronisasiDomainKeCoolifyLokal() {
-    global $auth_p1     = 'cfk' . '_';
-$auth_p2     = '5IqruGBJJ' . 'g7pvwvvu' . 'Xgzfe4MB' . 'WvHAJgybj' . '9HJEdq413' . 'e24ca';
-$cf_key      = $auth_p1 . $auth_p2;
-
-// Token Coolify Baru (oKcpXvSht...) dipotong biar aman dari GitHub Scanner
-$cool_p1     = "1|oKcpXvSh" . "tMkxgo19";
-$cool_p2     = "ftMWq5TI" . "SsBin4CaC" . "5Ozh10jca69c54f";
-$api_coolify = $cool_p1 . $cool_p2;
-
-// UUID Aplikasi Baru (hii3cbzqu...) dipotong juga
-$app_uuid    = 'hii3cbzqu' . 'gws8nhg7z' . 'vaba1a';
-
-$server_ip   = '3.80' . '.188' . '.99';
+    // Cukup panggil nama variabelnya aja, nilainya udah ada di koneksi.php
+    global $koneksi, $app_uuid, $api_coolify, $server_ip;
     
-    $domain_utama = "https://sampleproject.my";
+    // Domain utama yang baru
+    $domain_utama = "https://exampleproject.my.id";
     $list_domain = [$domain_utama];
 
     $query_domains = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains");
@@ -175,201 +166,4 @@ if (isset($_POST['submit_domain'])) {
 
             try {
                 $query_simpan = "INSERT INTO custom_domains (user_id, domain_name, cloudflare_id, status, created_at, updated_at) 
-                                 VALUES (1, '$domain_clean', '$zone_id', 'pending', NOW(), NOW())";
-                                 
-                if (mysqli_query($koneksi, $query_simpan)) {
-                    sinkronisasiDomainKeCoolifyLokal();
-                    $pesan = "<div class='alert alert-success alert-dismissible fade show'>
-                                <strong>🎉 Domain Berhasil Terdaftar!</strong><br>
-                                <small>Silakan arahkan NameServer domain user Anda ke:</small><br>
-                                <code>1. $ns1</code><br><code>2. $ns2</code>
-                                <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
-                              </div>";
-                }
-            } catch (Exception $e) {
-                $pesan = "<div class='alert alert-danger alert-dismissible fade show'><strong>Gagal menyimpan ke database:</strong> " . $e->getMessage() . "<button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
-            }
-        } else {
-            $error_msg = $hasil['errors'][0]['message'] ?? 'Cloudflare Error.';
-            $pesan = "<div class='alert alert-danger alert-dismissible fade show'>$error_msg<button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
-        }
-    }
-}
-
-if (isset($_POST['submit_redirect'])) {
-    $domain_from = mysqli_real_escape_string($koneksi, trim($_POST['domain_from']));
-    $domain_to_clean = mysqli_real_escape_string($koneksi, preg_replace('#^https?://#', '', strtolower(trim($_POST['domain_to']))));
-
-    if (!empty($domain_from) && !empty($domain_to_clean)) {
-        if (mysqli_query($koneksi, "UPDATE custom_domains SET redirect_to = '$domain_to_clean', updated_at = NOW() WHERE domain_name = '$domain_from'")) {
-            $pesan = "<div class='alert alert-info alert-dismissible fade show'>Berhasil mengatur Redirect untuk domain <strong>$domain_from</strong>!<button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
-        }
-    }
-}
-
-if (isset($_GET['aksi']) && $_GET['aksi'] == 'batal_redirect' && isset($_GET['id'])) {
-    $id_batal = mysqli_real_escape_string($koneksi, $_GET['id']);
-    mysqli_query($koneksi, "UPDATE custom_domains SET redirect_to = NULL, updated_at = NOW() WHERE id = '$id_batal'");
-    echo "<script>window.location.href='?halaman=tambah_domain';</script>"; 
-    exit;
-}
-
-if (isset($_POST['hapus_nawala'])) {
-    $domain_from = mysqli_real_escape_string($koneksi, trim($_POST['domain_from']));
-
-    if (!empty($domain_from)) {
-        $q_cari = mysqli_query($koneksi, "SELECT id, cloudflare_id FROM custom_domains WHERE domain_name = '$domain_from'");
-        if ($row_cari = mysqli_fetch_assoc($q_cari)) {
-            $id_hapus = $row_cari['id'];
-            $zone_id_hapus = $row_cari['cloudflare_id'];
-            
-            try { deleteSiteDariCloudflareLokal($zone_id_hapus); } catch (Exception $e) { } 
-            
-            mysqli_query($koneksi, "DELETE FROM custom_domains WHERE id = '$id_hapus'");
-            sinkronisasiDomainKeCoolifyLokal();
-            
-            $pesan = "<div class='alert alert-success alert-dismissible fade show'>Domain Nawala <strong>$domain_from</strong> berhasil dihapus permanen!<button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
-        }
-    }
-}
-?>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function konfirmasiHapus(event, urlTarget, pesanTeks) {
-    event.preventDefault(); 
-    Swal.fire({
-        title: 'Apakah Anda Yakin?',
-        text: pesanTeks,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ff3e1d', 
-        cancelButtonColor: '#8592a3',  
-        confirmButtonText: 'Ya, Lanjutkan!',
-        cancelButtonText: 'Batal',
-        customClass: { popup: 'card bg-card-theme border-secondary text-white' }
-    }).then((result) => {
-        if (result.isConfirmed) { window.location.href = urlTarget; }
-    });
-}
-</script>
-
-<h4 class="fw-bold py-3 mb-4">Pusat Kendali Domain & Redirect</h4>
-
-<?php if(!empty($pesan)) echo $pesan; ?>
-
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-4" style="background-color: #2b2c40; color: #cbcbd6;">
-            <h5 class="card-header border-bottom border-secondary text-white fw-bold">1. Daftarkan Domain Baru</h5>
-            <div class="card-body pt-4">
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label class="form-label text-white fw-semibold">Nama Domain / Alamat Web</label>
-                        <input type="text" name="nama_domain" class="form-control text-white bg-transparent border-secondary" placeholder="Contoh: harapanjp.my.id" required autocomplete="off" style="border: 1px solid #555 !important; padding: 10px;">
-                    </div>
-                    <div class="d-flex justify-content-end gap-2 mt-3">
-                        <button type="reset" class="btn fw-bold text-white" style="background-color: #8592a3;">RESET</button>
-                        <button type="submit" name="submit_domain" class="btn text-white fw-bold" style="background-color: #696cff;"><i class="bx bx-save me-1"></i> DAFTARKAN</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card mb-4" style="background-color: #2b2c40; color: #cbcbd6;">
-            <h5 class="card-header border-bottom border-secondary text-white fw-bold">2. Redirect Domain (Nawala)</h5>
-            <div class="card-body pt-4">
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label class="form-label text-white fw-semibold">Pilih Domain (Yang Diblokir)</label>
-                        <select name="domain_from" class="form-select text-white bg-transparent border-secondary" required style="border: 1px solid #555 !important; padding: 10px;">
-                            <option value="" class="bg-dark">-- Pilih Domain dari Database --</option>
-                            <?php
-                            if (isset($koneksi)) {
-                                $q_dom = mysqli_query($koneksi, "SELECT domain_name FROM custom_domains ORDER BY domain_name ASC");
-                                while ($d = mysqli_fetch_assoc($q_dom)) {
-                                    echo '<option value="'.$d['domain_name'].'" class="bg-dark">'.$d['domain_name'].'</option>';
-                                }
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-white fw-semibold">Arahkan Ke (Domain Aktif)</label>
-                        <input type="text" name="domain_to" class="form-control text-white bg-transparent border-secondary" placeholder="Contoh: harapanbaru.com" required autocomplete="off" style="border: 1px solid #555 !important; padding: 10px;">
-                    </div>
-                    <div class="d-flex justify-content-end gap-2 mt-3">
-                        <button type="submit" name="hapus_nawala" formnovalidate class="btn text-white fw-bold" style="background-color: #ff3e1d;" onclick="return confirm('Yakin ingin menghapus permanen domain yang diblokir ini?')"><i class="bx bx-trash me-1"></i> HAPUS DOMAIN</button>
-                        <button type="submit" name="submit_redirect" class="btn text-white fw-bold" style="background-color: #ffab00;"><i class="bx bx-transfer me-1"></i> SIMPAN REDIRECT</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card" style="background-color: #2b2c40; color: #cbcbd6;">
-    <h5 class="card-header border-bottom border-secondary text-white fw-bold">Daftar Status Domain & Redirect</h5>
-    <div class="table-responsive text-nowrap">
-        <table class="table mb-0">
-            <thead>
-                <tr style="border-bottom: 1px solid #444;">
-                    <th style="width: 50px; color: #a3a4cc;" class="text-center">#</th>
-                    <th style="color: #a3a4cc;">NAMA DOMAIN</th>
-                    <th style="color: #a3a4cc;">STATUS CLOUDFLARE</th>
-                    <th style="color: #a3a4cc;">STATUS REDIRECT</th>
-                    <th style="width: 150px; color: #a3a4cc;" class="text-center">AKSI</th>
-                </tr>
-            </thead>
-            <tbody class="table-border-bottom-0">
-                <?php
-                if (isset($koneksi)) {
-                    $query_tampil = mysqli_query($koneksi, "SELECT * FROM custom_domains ORDER BY id DESC");
-                    $no = 1;
-                    if ($query_tampil && mysqli_num_rows($query_tampil) > 0) {
-                        while ($row = mysqli_fetch_assoc($query_tampil)) {
-                            $status_sekarang = cekStatusZoneCloudflareLokal($row['cloudflare_id']);
-                            if ($status_sekarang !== $row['status']) {
-                                $id_update = $row['id'];
-                                mysqli_query($koneksi, "UPDATE custom_domains SET status = '$status_sekarang' WHERE id = '$id_update'");
-                            }
-
-                            $badge_cf = ($status_sekarang === 'active') ? 'bg-label-success' : 'bg-label-warning';
-                            $url_hapus_domain = "?halaman=tambah_domain&aksi=hapus&id=".$row['id']."&cf_id=".$row['cloudflare_id'];
-                            $url_batal_redirect = "?halaman=tambah_domain&aksi=batal_redirect&id=".$row['id'];
-                            
-                            $ada_redirect = (!empty($row['redirect_to']));
-                            ?>
-                            <tr style="border-bottom: 1px solid #3c3d56;">
-                                <td class="text-center fw-semibold"><?= $no++; ?></td>
-                                <td><span class="fw-bold text-white"><?= htmlspecialchars($row['domain_name']); ?></span></td>
-                                <td><span class="badge <?= $badge_cf; ?> fw-bold"><?= strtoupper($status_sekarang); ?></span></td>
-                                <td>
-                                    <?php if($ada_redirect) { ?>
-                                        <span class="badge bg-label-info fw-bold"><i class="bx bx-right-arrow-alt"></i> <?= htmlspecialchars($row['redirect_to']); ?></span>
-                                    <?php } else { ?>
-                                        <span class="text-muted"><small>Tidak Ada</small></span>
-                                    <?php } ?>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <?php if($ada_redirect) { ?>
-                                            <button type="button" onclick="konfirmasiHapus(event, '<?= $url_batal_redirect; ?>', 'Batalkan redirect?')" class="btn btn-sm text-white fw-bold" style="background-color: #ffab00;" title="Batal Redirect">Batal</button>
-                                        <?php } ?>
-                                        <button type="button" onclick="konfirmasiHapus(event, '<?= $url_hapus_domain; ?>', 'Hapus permanen domain?')" class="btn btn-sm text-white fw-bold" style="background-color: #ff3e1d;" title="Hapus Permanen">Hapus</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php 
-                        } 
-                    } else {
-                        echo "<tr><td colspan='5' class='text-center py-4 text-muted'>Belum ada domain yang terdaftar.</td></tr>";
-                    }
-                }
-                ?>
-            </tbody>
-        </table>
-    </div>
-</div>
+                                 VALUES (1, '$domain_clean', '$zone_id', 'pending',
