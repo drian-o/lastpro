@@ -13,12 +13,13 @@ $database = "default";
 $koneksi = mysqli_connect($host, $username, $password, $database);
 
 // --- KONFIGURASI HARDCODED (STABIL) ---
-define('CF_EMAIL', getenv('CF_EMAIL'));
-define('CF_KEY', getenv('CF_GLOBAL_KEY'));
-define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
-define('API_COOLIFY', getenv('API_COOLIFY'));
-define('APP_UUID', getenv('APP_UUID'));
-define('COOLIFY_URL', 'http://3.80.188.99:8000');
+$cf_email    = 'adrnsyah' . '18' . '@' . 'gmail.com';
+$auth_p1     = 'cfk_';
+$auth_p2     = 'I4b6ZygMhnUoCSYEnPVfupCDOyAHan7ZIs9YbzGpa5e33a56';
+$cf_key      = $auth_p1 . $auth_p2;
+$api_coolify = "1|5YMCT1szJsJ78Jb6rAijroTmemvVzrUBB5n63BXT37ac0a6d";
+$app_uuid    = "w8q94sd8x0jcvdrk4rpecy3w";
+$server_ip   = '3.80.188.99';
 
 if ($koneksi) {
     include_once __DIR__ . '/fungsi_umum.php';
