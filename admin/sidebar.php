@@ -140,7 +140,7 @@
       </ul>
     </li>
 
-    <li class="menu-item <?php echo in_array($page_active, ['staff', 'profil', 'pengaturan']) ? 'active open' : ''; ?>">
+    <li class="menu-item <?php echo in_array($page_active, ['staff', 'profil', 'pengaturan', 'log_aktifitas']) ? 'active open' : ''; ?>">
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons mdi mdi-cog-outline"></i>
         <div>Sistem & Akses</div>
@@ -159,6 +159,11 @@
         <li class="menu-item <?php echo ($page_active == 'pengaturan') ? 'active' : ''; ?>" id="pengaturan">
           <a href="<?php echo $alamat_admin.'pengaturan'; ?>" class="menu-link">
             <div>Pengaturan</div>
+          </a>
+        </li>
+        <li class="menu-item <?php echo ($page_active == 'log_aktifitas') ? 'active' : ''; ?>" id="log_aktifitas">
+          <a href="<?php echo $alamat_admin.'log_aktifitas'; ?>" class="menu-link">
+            <div>Log Aktivitas</div>
           </a>
         </li>
       </ul>
