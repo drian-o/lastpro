@@ -1,19 +1,10 @@
 <?php
 // --- SETUP SESSION AGAR STABIL DI MOBILE ---
-$host = $_SERVER['HTTP_HOST'];
-session_set_cookie_params([
-    'lifetime' => 86400 * 7,
-    'path' => '/',
-    'domain' => (strpos($host, 'www.') === 0) ? substr($host, 4) : $host,
-    'secure' => isset($_SERVER['HTTPS']),
-    'httponly' => true,
-    'samesite' => 'Lax'
-]);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// 2. Satu-satunya tempat buat start session
-session_start();
-
-// 3. Baru include koneksi
+// 2. Jangan pakai session_set_cookie_params, langsung include saja
 include_once 'koneksi.php';
 
 // ==========================================
