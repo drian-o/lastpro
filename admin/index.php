@@ -162,6 +162,9 @@
                 else if ($halaman_aktif == "rekap") {
                 include_once "rekap.php";
               }
+               else if ($halaman_aktif == "provider") {
+                include_once "provider.php";
+              }
               include_once "footer.php";
             ?>
           </div>
