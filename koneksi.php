@@ -12,8 +12,8 @@ $database = "default";
 
 $koneksi = mysqli_connect($host, $username, $password, $database);
 
-// --- PERUBAHAN: KONFIGURASI CLOUDFLARE & COOLIFY ---
-// Fungsi getenv() diganti dengan data asli agar tidak memicu HTTP 500 di Coolify
+// --- KONFIGURASI CLOUDFLARE & COOLIFY ---
+// 
 define('CF_EMAIL', getenv('CF_EMAIL'));
 define('CF_KEY', getenv('CF_GLOBAL_KEY'));
 define('CF_ZONE_ID', getenv('CF_ZONE_ID'));
@@ -64,7 +64,7 @@ if ($koneksi) {
     }
 
     // ==========================================================
-    // SENSOR AKTIVITAS LOG (ADMIN & USER)
+    // SENSOR AKTIVITAS LOG (ADMIN, STAFF, & USER)
     // ==========================================================
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
@@ -92,17 +92,30 @@ if ($koneksi) {
         }
     }
 
-    // Eksekusi pencatatan log di setiap halaman yang dibuka
-    // Abaikan url yang mengandung 'ajax' biar database gak jebol nangkepin auto-refresh
+    // Mengabaikan pemanggilan background / auto-refresh agar database tidak kelebihan beban
     if (strpos($_SERVER['REQUEST_URI'], 'ajax') === false) {
         $user_aktif = 'Guest';
         $role_aktif = 'guest';
 
+        // 1. DETEKSI ADMIN
         if (isset($_SESSION['kode_admin'])) {
             $user_aktif = $_SESSION['kode_admin']; 
             $role_aktif = 'Admin';
-        } elseif (isset($_SESSION['username'])) {
+        } 
+        // 2. DETEKSI STAFF (Memeriksa kemungkinan nama session staff yang Anda gunakan)
+        elseif (isset($_SESSION['kode_staff'])) {
+            $user_aktif = $_SESSION['kode_staff'];
+            $role_aktif = 'Staff';
+        } elseif (isset($_SESSION['username_staff'])) {
+            $user_aktif = $_SESSION['username_staff'];
+            $role_aktif = 'Staff';
+        } 
+        // 3. DETEKSI USER / PEMAIN
+        elseif (isset($_SESSION['username'])) {
             $user_aktif = $_SESSION['username'];
+            $role_aktif = 'User';
+        } elseif (isset($_SESSION['user'])) {
+            $user_aktif = $_SESSION['user'];
             $role_aktif = 'User';
         }
 
