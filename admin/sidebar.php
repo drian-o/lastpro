@@ -161,8 +161,8 @@
             <div>Pengaturan</div>
           </a>
         </li>
-        <li class="menu-item <?php echo ($page_active == 'log_aktifitas') ? 'active' : ''; ?>" id="log_aktifitas">
-          <a href="<?php echo $alamat_admin.'log_aktifitas'; ?>" class="menu-link">
+        <li class="menu-item <?php echo ($page_active == 'log_active') ? 'active' : ''; ?>" id="log_aktifitas">
+          <a href="<?php echo $alamat_admin.'log_active'; ?>" class="menu-link">
             <div>Log Aktivitas</div>
           </a>
         </li>
