@@ -1,7 +1,27 @@
-<?php include_once 'koneksi.php'; ?>
-<?php include_once 'header.php'; ?>
-<?php include_once 'carousel_slider.php';?>
+<?php
+// 1. PENGAMAN SESI (PENTING: Harus paling atas!)
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
+// 2. CEK APAKAH USER SUDAH LOGIN
+// Pastikan nama sesi ini sama dengan yang lu set di login_proses.php
+$sudah_login = isset($_SESSION['nama_pengguna_anggota']);
+
+// 3. LOGIKA REDIRECT PINTAR
+// Kalau belum login DAN dia lagi nggak di halaman login, baru tendang.
+// Ganti 'auth-login' sesuai nama file login lu yang asli.
+$halaman_login = 'auth-login'; 
+if (!$sudah_login && basename($_SERVER['PHP_SELF']) !== $halaman_login . '.php') {
+    header("Location: " . $halaman_login);
+    exit();
+}
+
+// Lanjut include file lainnya
+include_once 'koneksi.php'; 
+include_once 'header.php'; 
+include_once 'carousel_slider.php'; 
+?>
 
 
 <style>
