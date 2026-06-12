@@ -1,0 +1,8 @@
+# Abaikan folder session (Biar aman dari restart Coolify & gak ke-upload)
+session_data/
+
+# Abaikan file log error
+error.log
+
+# Abaikan konfigurasi env/database 
+.env
