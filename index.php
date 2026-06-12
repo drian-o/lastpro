@@ -1,27 +1,7 @@
-<?php
-// 1. Mulai Sesi
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+<?php include_once 'koneksi.php'; ?>
+<?php include_once 'header.php'; ?>
+<?php include_once 'carousel_slider.php';?>
 
-// 2. TENTUKAN FILE LOGIN
-// Ganti 'auth-login' dengan nama file login asli lu (misal: 'login.php')
-$halaman_login = 'auth-login'; 
-
-// 3. CEK LOGIN (Hanya jika bukan di halaman login)
-// Kita cuma ngecek kalau dia buka file selain login.php
-$file_ini = basename($_SERVER['PHP_SELF']);
-
-if (!isset($_SESSION['nama_pengguna_anggota']) && $file_ini !== $halaman_login . '.php') {
-    header("Location: " . $halaman_login);
-    exit();
-}
-
-// 4. INCLUDE KONEKSI SETELAH SESI AMAN
-include_once 'koneksi.php'; 
-include_once 'header.php'; 
-include_once 'carousel_slider.php'; 
-?>
 
 
 <style>
