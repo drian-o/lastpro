@@ -6,13 +6,17 @@ WORKDIR /var/www/html
 
 # Update dan install ekstensi PHP yang umum dipakai
 RUN apt-get update && apt-get install -y \
+   RUN apt-get update && apt-get install -y \
     lsphp82-mysql \
+    lsphp82-mysqli \
+    lsphp82-openssl \
     lsphp82-curl \
-    lsphp82-gd \
+    lsphp82-imagick \
+    lsphp82-lsphp82-imagick \
     lsphp82-intl \
-    lsphp82-mbstring \
-    lsphp82-xml \
-    lsphp82-zip \
+    lsphp82-json \
+    lsphp82-sqlite3 \
+    lsphp82-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy source code ke target folder OLS
