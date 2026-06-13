@@ -1,8 +1,6 @@
 <?php
 include_once 'header.php'; 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+
 // Memeriksa flag di sesi
 if (empty($_SESSION['valid_navigation'])) {
     // Jika flag tidak ada, arahkan ke halaman error dengan JavaScript
